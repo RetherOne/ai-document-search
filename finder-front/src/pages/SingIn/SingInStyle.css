@@ -1,0 +1,87 @@
+.singin-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 28px;
+    flex: 1 0 0;
+    align-self: stretch;
+}
+
+.singin-main-text{
+    text-align: center;
+    font-size: 72px;
+    font-weight: 700;
+}
+
+.singin-form{
+    display: flex;
+    min-width: 312px;
+    gap: 24px;
+    padding: 24px;
+    flex-direction: column;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+}
+
+.singin-textField{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.singin-div{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 312px;
+    gap: 8px;
+}
+
+.singin-input{
+    display: flex;
+    min-width: 240px;
+    padding: 12px 16px;
+    align-items: center;
+    align-self: stretch;
+    border-radius: 8px;
+    border: 1px solid #D9D9D9;
+    font-size: 16px;
+    outline: none;
+}
+
+.singin-input:focus{
+    border-color: #a3a3a3;
+}
+
+.singin-button{
+    display: flex;
+    width: 100%;
+    padding: 12px;
+    justify-content: center;
+    align-items: center;
+    color: #FFFFFF;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid #2c2c2c;
+    background: #2c2c2c;
+}
+
+.singin-button:active{
+    color: #2c2c2c;
+    background: #FFFFFF;
+}
+
+.singin-label{
+    display: flex;
+    align-items: flex-start;
+    align-self: stretch;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+}

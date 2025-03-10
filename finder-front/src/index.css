@@ -1,0 +1,27 @@
+:root{
+  --color--text-main: #1E1E1E;
+
+  --text-font: "Inter", Helvetica;
+}
+
+html{
+  font-family: var(--text-font);
+  color: var(--color--text-main);
+}
+
+body{
+  margin: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: #F5F5F5;
+}
+
+a{
+  text-decoration: none;
+  color: var(--color--text-main);
+}
+
+#root{
+  height: 100vh;
+}
+

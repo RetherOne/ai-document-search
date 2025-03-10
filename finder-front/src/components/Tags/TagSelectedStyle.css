@@ -1,0 +1,10 @@
+.tag-selected {
+    display: flex;
+    padding: 4px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px;
+    background: #F5F5F5;
+}
+

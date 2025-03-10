@@ -1,0 +1,8 @@
+.tag-check-box{
+    display: flex;
+    align-items: flex-start;
+    align-self: stretch;
+    width: 56px;
+    flex-direction: row;
+    align-items: flex-start;
+}

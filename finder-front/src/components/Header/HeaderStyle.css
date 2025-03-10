@@ -1,0 +1,126 @@
+.header{
+    display: flex;
+    height: 60px;
+    padding: 6px 21px;
+    align-items: center;
+    align-content: center;
+    gap: 0px 24px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    border-bottom: 1px solid #D9D9D9;
+    background: #FFFFFF;
+}
+
+.header-text{
+    text-align: center;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.navigate{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    align-content: flex-end;
+    gap: 8px 8px;
+    flex: 1 0 0;
+    flex-wrap: wrap;
+}
+
+.nav-button{
+    display: flex;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px;
+    color: #000000;
+    text-decoration: none;
+}
+
+.nav-button:hover {
+    background: #F5F5F5;
+}
+
+.nav-button.isHere {
+    background: #F5F5F5;
+    pointer-events: none;
+    cursor: default;
+}
+
+.nav-button:active {
+    background: #e6e6e6;
+}
+
+.singin{
+    color: #000000;
+    text-decoration: none;
+    padding: 8px;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid #767676;
+    background: #E3E3E3;
+}
+
+.singin:hover{
+    background: #cacaca;
+}
+
+.register{
+    color: #FFFFFF;
+    text-decoration: none;
+    padding: 8px;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid #2c2c2c;
+    background: #2c2c2c;
+}
+
+.register:hover{
+    background: #1c1c1c;
+}
+
+.user-avatar {
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid #767676;
+}
+
+.upload-button {
+    display: flex;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu-button{
+    display: flex;
+    margin: 10px 0;
+    padding: 0;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    gap: 4px;
+}
+
+.menu-dropdown{
+    position: absolute;
+    width: 80px;
+    top: 50px;
+    right: 0;
+    background: #FFFFFF;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 1000;
+}
