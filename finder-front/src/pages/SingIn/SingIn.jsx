@@ -3,16 +3,19 @@ import './SingInStyle.css'
 import {Button, Form, Input, TextField} from "react-aria-components";
 import { useNavigate } from 'react-router-dom';
 
-const SingIn = ({authorizationSeter, setUsername}) => {
-    const [loginError, setLoginError] = useState('');
-    const [passwordError, setPasswordError] = useState('');
+const SingIn = ({authorizationSeter, setUsername, csrfToken}) => {
+    const [username, setLocalUsername] = useState("NonE");
+    const [password, setLocalPassword] = useState("NonE");
+
+    const [loginError, setLoginError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
     const navigate = useNavigate();
 
     const handleSignIn = (event) => {
         event.preventDefault();
 
-        const login = event.target['login'].value; // Получаем значение из поля login
-        const password = event.target['password'].value; // Получаем значение из поля password
+        const login = event.target['login'].value;
+        const password = event.target['password'].value;
 
         let isValid = true;
 
@@ -30,12 +33,34 @@ const SingIn = ({authorizationSeter, setUsername}) => {
             setPasswordError('');
         }
 
+
+
         if (isValid) {
-            authorizationSeter(true);
             setUsername(login);
+            fetch("http://localhost:8000/api/login/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                credentials: "include",
+                body: JSON.stringify({username: login, password: password}),
+            })
+                .then(res => res.json())
+                .then((data) => {
+                    if (data.detail === "Successfully logged in.") {
+                        authorizationSeter(true);
+                        setUsername(username);
+                    } else {
+                        console.error("Login failed:", data.detail);
+                    }
+                })
+                .catch(err => console.error("Login error:", err));
             navigate('/');
         }
     };
+
+
 
     return (
         <div className="singin-main">

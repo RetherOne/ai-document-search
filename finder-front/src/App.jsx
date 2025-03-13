@@ -16,24 +16,64 @@ import Contact from "./pages/Contact/Contact.jsx";
 import MoreDocuments from "./pages/MoreDocuments/MoreDocuments.jsx";
 
 function App() {
-    const [authorization, setAuthorization] = useState(false);
+    const [isAuthenticated, setAuthorization] = useState(false);
     const [username, setUsername] = useState("Unauthorized");
+    const [csrfToken, setCsrfToken] = useState("none");
 
     useEffect(() => {
-        console.log('Authorization state changed:', authorization);
-    }, [authorization]);
+        console.log('Authorization state changed:', isAuthenticated);
+    }, [isAuthenticated]);
+
+    useEffect(() => {
+        console.log(csrfToken);
+    }, [csrfToken]);
+
+    const getCsrfToken = () => {
+        fetch("http://localhost:8000/api/csrf/", {
+            credentials: "include",
+        })
+            .then((res) => {
+                setCsrfToken(res.headers.get("X-CSRFToken"));
+                console.log(csrfToken);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const getSession = () => {
+        fetch("http://localhost:8000/api/session/", {
+            credentials: "include",
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.isAuthenticated) {
+                    console.log(data);
+                    setAuthorization(true);
+                    setUsername(data.username);
+                } else {
+                    setAuthorization(false);
+                    getCsrfToken();
+                }
+            })
+            .catch(err => console.error("Session error:", err));
+    };
+
+    useEffect(() => {
+        getSession();
+    }, []);
 
 
     return (
         <BrowserRouter>
             <div className="main-app">
                 <ScrollToTop />
-                <Header authorization={authorization} setAuthorization={setAuthorization} setUsername={setUsername}/>
+                <Header authorization={isAuthenticated} setAuthorization={setAuthorization} setUsername={setUsername} getCsrfToken={getCsrfToken}/>
                 <Routes>
                     <Route path="/" element={<Home/>} />
                     <Route path="/result" element={<Results />} />
-                    <Route path="/document" element={<DocPage authorization={authorization} />} />
-                    <Route path="/singin" element={<SingIn authorizationSeter={setAuthorization} setUsername={setUsername} />} />
+                    <Route path="/document" element={<DocPage authorization={isAuthenticated} />} />
+                    <Route path="/singin" element={<SingIn authorizationSeter={setAuthorization} setUsername={setUsername} csrfToken={csrfToken}/>} />
                     <Route path="/register" element={<Register authorizationSeter={setAuthorization} setUsername={setUsername} />} />
                     <Route path="/profile" element={<Profile setAuthorization={setAuthorization} username={username}/>} />
                     <Route path="/upload" element={<Upload />} />

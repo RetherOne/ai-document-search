@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import './HeaderStyle.css'
 import {NavLink, useNavigate} from "react-router-dom";
 
-const Header = ({ authorization , setAuthorization, setUsername}) => {
+const Header = ({ authorization , setAuthorization, setUsername, getCsrfToken}) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const navigate = useNavigate();
@@ -17,6 +17,25 @@ const Header = ({ authorization , setAuthorization, setUsername}) => {
             setMenuOpen(false);
         }
     };
+
+    const handleLogout = () => {
+        fetch("http://localhost:8000/api/logout/", {
+            credentials: "include",
+        })
+            .then(res => res.json())
+            .then((data) => {
+                if (data.detail === "Successfully logged out.") {
+                    getCsrfToken();
+                    setAuthorization(false);
+                } else {
+                    console.error("Logout failed:", data.detail);
+                }
+            })
+            .catch(err => console.error("Logout error:", err));
+        setUsername("NonE");
+        navigate("/");
+        toggleMenu();
+    }
 
     useEffect(() => {
         // Add a click event listener to the document
@@ -48,7 +67,7 @@ const Header = ({ authorization , setAuthorization, setUsername}) => {
                 {authorization ? (
                     <>
                         <NavLink className="singin upload-button" to="/upload">
-                            <img src="/images/Upload.png"
+                            <img src={"/images/Upload.png"}
                                  alt="Upload img"
                                  style={{width: '16px', height: '16px'}}/>
                             Upload
@@ -72,21 +91,14 @@ const Header = ({ authorization , setAuthorization, setUsername}) => {
                             {menuOpen && (
                                 <div className="menu-dropdown">
                                     <NavLink to="/profile" className="menu-button"
-                                             onClick={() => {
-                                                 toggleMenu();
-                                             }}>
+                                             onClick={toggleMenu}>
                                         <img src="/images/User.png"
                                              alt="Log Out"
                                              style={{width: '16px', height: '16px'}}/>
                                         Profile
                                     </NavLink>
                                     <button className="menu-button"
-                                            onClick={() => {
-                                                setAuthorization(false);
-                                                setUsername("");
-                                                navigate("/");
-                                                toggleMenu();
-                                            }}>
+                                            onClick={handleLogout}>
                                         <img src="/images/LogOut.png"
                                              alt="Log Out"
                                              style={{width: '16px', height: '16px'}}/>
