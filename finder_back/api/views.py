@@ -1,53 +1,57 @@
-import json
-
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.middleware.csrf import get_token
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_POST
+
+# Получение CSRF токена
+class GetCSRFToken(APIView):
+    def get(self, request):
+        response = Response({'detail': 'CSRF cookie set'})
+        response['X-CSRFToken'] = get_token(request)
+        print(response['X-CSRFToken'])
+        return response
 
 
-def get_csrf(request):
-    response = JsonResponse({'detail': 'CSRF cookie set'})
-    response['X-CSRFToken'] = get_token(request)
-    print(response['X-CSRFToken'])
-    return response
+# Логин (авторизация пользователя)
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if not username or not password:
+            return Response({'detail': 'Please provide username and password.'}, status=400)
+
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return Response({'detail': 'Invalid credentials!'}, status=400)
+
+        login(request, user)
+        return Response({'detail': 'Successfully logged in.'})
 
 
-@require_POST
-def login_view(request):
-    data = json.loads(request.body)
-    username = data.get('username')
-    password = data.get('password')
+# Логаут (выход из системы)
+class LogoutView(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({'detail': 'You\'re not logged in.'}, status=400)
 
-    if username is None or password is None:
-        return JsonResponse({'detail': 'Please provide username and password.'}, status=400)
-
-    user = authenticate(username=username, password=password)
-    if user is None:
-        return JsonResponse({'detail': 'Invalid credentials!!!'}, status=400)
-
-    login(request, user)
-    return JsonResponse({'detail': 'Successfully logged in.'})
-
-def logout_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
-
-    logout(request)
-    return JsonResponse({'detail': 'Successfully logged out.'})
+        logout(request)
+        return Response({'detail': 'Successfully logged out.'})
 
 
-@ensure_csrf_cookie
-def session_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'isAuthenticated': False})
-    print(request.user.username)
-    return JsonResponse({'isAuthenticated': True, 'username': request.user.username})
+# Проверка сессии (кто авторизован)
+class SessionView(APIView):
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({'isAuthenticated': False})
+        return Response({'isAuthenticated': True, 'username': request.user.username})
 
 
-def whoami_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'isAuthenticated': False})
+# Получение информации о пользователе (проверка текущего пользователя)
+class WhoAmIView(APIView):
+    permission_classes = [IsAuthenticated]  # Только для авторизованных пользователей
 
-    return JsonResponse({'username': request.user.username})
+    def get(self, request):
+        return Response({'username': request.user.username})

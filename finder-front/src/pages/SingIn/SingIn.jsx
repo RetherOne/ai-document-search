@@ -37,6 +37,7 @@ const SingIn = ({authorizationSeter, setUsername, csrfToken}) => {
 
         if (isValid) {
             setUsername(login);
+            console.log(csrfToken);
             fetch("http://localhost:8000/api/login/", {
                 method: "POST",
                 headers: {
