@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './SingInStyle.css'
 import {Button, Form, Input, TextField} from "react-aria-components";
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +36,6 @@ const SingIn = ({authorizationSeter, setUsername, csrfToken}) => {
 
 
         if (isValid) {
-            setUsername(login);
             console.log(csrfToken);
             fetch("http://localhost:8000/api/login/", {
                 method: "POST",
@@ -61,7 +60,9 @@ const SingIn = ({authorizationSeter, setUsername, csrfToken}) => {
         }
     };
 
-
+    useEffect(() => {
+        console.log("TokenS:", csrfToken);
+    })
 
     return (
         <div className="singin-main">

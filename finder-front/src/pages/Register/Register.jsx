@@ -3,7 +3,7 @@ import './RegistrStyle.css';
 import { Button, Form, Input, TextField } from "react-aria-components";
 import { useNavigate } from 'react-router-dom';
 
-const Register = ({ authorizationSeter, setUsername }) => {
+const Register = ({ authorizationSeter, setUsername, csrfToken }) => {
     const [loginError, setLoginError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [emailError, setEmailError] = useState('');
@@ -60,6 +60,20 @@ const Register = ({ authorizationSeter, setUsername }) => {
         }
 
         if (isValid) {
+            fetch("http://localhost:8000/api/register/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    username: login,
+                    password: password,
+                    email: email,
+                }),
+            });
+
             authorizationSeter(true);
             setUsername(login);
             navigate('/');

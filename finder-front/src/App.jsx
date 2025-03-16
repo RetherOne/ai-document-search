@@ -53,13 +53,14 @@ function App() {
                     setUsername(data.username);
                 } else {
                     setAuthorization(false);
-                    getCsrfToken();
                 }
+                getCsrfToken();
             })
             .catch(err => console.error("Session error:", err));
     };
 
     useEffect(() => {
+        console.log("TokenA:", csrfToken);
         getSession();
     }, []);
 
@@ -74,9 +75,9 @@ function App() {
                     <Route path="/result" element={<Results />} />
                     <Route path="/document" element={<DocPage authorization={isAuthenticated} />} />
                     <Route path="/singin" element={<SingIn authorizationSeter={setAuthorization} setUsername={setUsername} csrfToken={csrfToken}/>} />
-                    <Route path="/register" element={<Register authorizationSeter={setAuthorization} setUsername={setUsername} />} />
+                    <Route path="/register" element={<Register authorizationSeter={setAuthorization} setUsername={setUsername} csrfToken={csrfToken}/>} />
                     <Route path="/profile" element={<Profile setAuthorization={setAuthorization} username={username}/>} />
-                    <Route path="/upload" element={<Upload />} />
+                    <Route path="/upload" element={<Upload csrfToken={csrfToken}/>} />
                     <Route path="/all" element={<AllDocuments />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
