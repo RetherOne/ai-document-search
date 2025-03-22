@@ -1,19 +1,28 @@
-from django.db import models
+import hashlib
+import uuid
+
 from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+
+def user_avatar_directory_path(instance, filename):
+    user_hash = hashlib.sha256(str(instance.user.id).encode()).hexdigest()[:14]
+
+    return f"users/{user_hash}/avatar/{uuid.uuid4().hex}_{filename}"
 
 
 class CustomUser(AbstractUser):
-    doc_list = models.CharField(default="none")
+    phone_number = models.CharField(max_length=13, unique=True)
+    avatar = models.ImageField(upload_to=user_avatar_directory_path)
 
 
-def user_directory_path(instance, filename):
-    """Файлы сохраняются в `media/user_<id>/<filename>`"""
-    return f"user_{instance.user.id}/{filename}"
+def user_doc_directory_path(instance, filename):
+    user_hash = hashlib.sha256(str(instance.user.id).encode()).hexdigest()[:14]
+
+    return f"users/{user_hash}/{uuid.uuid4().hex[:14]}_{filename}"
+
 
 class UserFile(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Привязываем файл к пользователю
-    file = models.FileField(upload_to=user_directory_path)  # Файл сохраняется в `media/`
-    uploaded_at = models.DateTimeField(auto_now_add=True)  # Дата загрузки
-
-    def __str__(self):
-        return f"{self.user.username}"
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    file = models.FileField(upload_to=user_doc_directory_path)
+    uploaded_at = models.DateTimeField(auto_now_add=True)

@@ -71,6 +71,7 @@ const Register = ({ authorizationSeter, setUsername, csrfToken }) => {
                     username: login,
                     password: password,
                     email: email,
+                    phone: phone,
                 }),
             });
 
