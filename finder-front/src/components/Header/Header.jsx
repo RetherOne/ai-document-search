@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import './HeaderStyle.css'
 import {NavLink, useNavigate} from "react-router-dom";
 
-const Header = ({ authorization , setAuthorization, setUsername, getCsrfToken}) => {
+const Header = ({ authorization , setAuthorization, setUsername, getCsrfToken, setAvatarUrl, avatarUrl}) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const navigate = useNavigate();
@@ -83,7 +83,7 @@ const Header = ({ authorization , setAuthorization, setUsername, getCsrfToken}) 
                                     }}>
                                 <img
                                     className="user-avatar"
-                                    src="/images/avatar.png"
+                                    src={avatarUrl === "avatarUrl None" || !avatarUrl ? "/images/user.jpg" : `http://localhost:8000/api${avatarUrl}`}
                                     alt="User Avatar"
                                 />
                             </button>

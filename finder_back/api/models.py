@@ -6,9 +6,9 @@ from django.db import models
 
 
 def user_avatar_directory_path(instance, filename):
-    user_hash = hashlib.sha256(str(instance.user.id).encode()).hexdigest()[:14]
+    user_hash = hashlib.sha256(str(instance.id).encode()).hexdigest()[:14]
 
-    return f"users/{user_hash}/avatar/{uuid.uuid4().hex}_{filename}"
+    return f"users/{user_hash}/avatar/{uuid.uuid4().hex[:14]}_{filename}"
 
 
 class CustomUser(AbstractUser):

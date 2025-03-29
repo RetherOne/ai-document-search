@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import './App.css'
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import ScrollToTop from "./components/ScrollToTop/ScrollToTop.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 import Header from "./components/Header/Header.jsx";
 import Home from "./pages/Home.jsx";
 import Results from "./pages/Results/Results.jsx";
@@ -18,7 +18,8 @@ import MoreDocuments from "./pages/MoreDocuments/MoreDocuments.jsx";
 function App() {
     const [isAuthenticated, setAuthorization] = useState(false);
     const [username, setUsername] = useState("Unauthorized");
-    const [csrfToken, setCsrfToken] = useState("none");
+    const [avatarUrl, setAvatarUrl] = useState("avatarUrl None");
+    const [csrfToken, setCsrfToken] = useState("csrfToken None");
 
     useEffect(() => {
         console.log('Authorization state changed:', isAuthenticated);
@@ -49,8 +50,9 @@ function App() {
             .then(data => {
                 if (data.isAuthenticated) {
                     console.log(data);
-                    setAuthorization(true);
+                    setAuthorization(data.isAuthenticated);
                     setUsername(data.username);
+                    setAvatarUrl(data.avatar)
                 } else {
                     setAuthorization(false);
                 }
@@ -69,14 +71,14 @@ function App() {
         <BrowserRouter>
             <div className="main-app">
                 <ScrollToTop />
-                <Header authorization={isAuthenticated} setAuthorization={setAuthorization} setUsername={setUsername} getCsrfToken={getCsrfToken}/>
+                <Header authorization={isAuthenticated} setAuthorization={setAuthorization} setUsername={setUsername} getCsrfToken={getCsrfToken} setAvatarUrl={setAvatarUrl} avatarUrl={avatarUrl}/>
                 <Routes>
                     <Route path="/" element={<Home/>} />
                     <Route path="/result" element={<Results />} />
                     <Route path="/document" element={<DocPage authorization={isAuthenticated} />} />
-                    <Route path="/singin" element={<SingIn authorizationSeter={setAuthorization} setUsername={setUsername} csrfToken={csrfToken}/>} />
-                    <Route path="/register" element={<Register authorizationSeter={setAuthorization} setUsername={setUsername} csrfToken={csrfToken}/>} />
-                    <Route path="/profile" element={<Profile setAuthorization={setAuthorization} username={username}/>} />
+                    <Route path="/singin" element={<SingIn authorizationSeter={setAuthorization} setUsername={setUsername} csrfToken={csrfToken} setAvatarUrl={setAvatarUrl} avatarUrl={avatarUrl}/>} />
+                    <Route path="/register" element={<Register authorizationSeter={setAuthorization} setUsername={setUsername} csrfToken={csrfToken} />} />
+                    <Route path="/profile" element={<Profile setAuthorization={setAuthorization} username={username} csrfToken={csrfToken}/>} />
                     <Route path="/upload" element={<Upload csrfToken={csrfToken}/>} />
                     <Route path="/all" element={<AllDocuments />} />
                     <Route path="/about" element={<About />} />

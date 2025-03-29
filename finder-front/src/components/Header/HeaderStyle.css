@@ -90,7 +90,7 @@
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    border: 2px solid #767676;
+    border: 2.2px solid var(--color--text-main);
 }
 
 .upload-button {

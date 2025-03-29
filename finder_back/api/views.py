@@ -12,7 +12,6 @@ from .models import CustomUser, UserFile
 from .serializers import UserFileSerializer
 
 
-# Получение CSRF токена
 class GetCSRFToken(APIView):
     def get(self, request):
         response = Response({"detail": "CSRF cookie set"})
@@ -27,14 +26,6 @@ class RegisterView(APIView):
         password = request.data.get("password")
         email = request.data.get("email", "").strip()
         phone_number = request.data.get("phone")
-        # first_name = request.data.get("first_name", "").strip()
-        # last_name = request.data.get("last_name", "").strip()
-
-        # if not username or not password or not password2 or not email:
-        #     return Response(
-        #         {"detail": "All fields are required!"},
-        #         status=status.HTTP_400_BAD_REQUEST,
-        #     )
 
         try:
             validate_email(email)
@@ -43,31 +34,25 @@ class RegisterView(APIView):
                 {"detail": "Invalid email format!"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Проверяем, что пользователь с таким username не существует
         if CustomUser.objects.filter(username=username).exists():
             return Response(
                 {"detail": "User with this username already exists!"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Проверяем, что email не занят
         if CustomUser.objects.filter(email=email).exists():
             return Response(
                 {"detail": "User with this email already exists!"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Создаем пользователя
         user = CustomUser.objects.create_user(
             username=username,
             password=password,
             email=email,
             phone_number=phone_number,
-            # first_name=first_name,
-            # last_name=last_name,
         )
 
-        # Автоматически логиним пользователя
         login(request, user)
 
         return Response(
@@ -76,7 +61,6 @@ class RegisterView(APIView):
         )
 
 
-# Логин (авторизация пользователя)
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get("username")
@@ -84,46 +68,53 @@ class LoginView(APIView):
 
         if not username or not password:
             return Response(
-                {"detail": "Please provide username and password."}, status=400
+                {"detail": "Please provide username and password."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         user = authenticate(username=username, password=password)
         if user is None:
-            return Response({"detail": "Invalid credentials!"}, status=400)
+            return Response(
+                {"detail": "Invalid credentials!"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         login(request, user)
         return Response({"detail": "Successfully logged in."})
 
 
-# Логаут (выход из системы)
 class LogoutView(APIView):
     def get(self, request):
         if not request.user.is_authenticated:
-            return Response({"detail": "You're not logged in."}, status=400)
+            return Response(
+                {"detail": "You're not logged in."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         logout(request)
         return Response({"detail": "Successfully logged out."})
 
 
-# Проверка сессии (кто авторизован)
 class SessionView(APIView):
-
     def get(self, request):
+        print(request.user.avatar.url if request.user.avatar else None)
         if not request.user.is_authenticated:
             return Response({"isAuthenticated": False})
-        return Response({"isAuthenticated": True, "username": request.user.username})
+        return Response(
+            {
+                "isAuthenticated": True,
+                "username": request.user.username,
+                "avatar": request.user.avatar.url if request.user.avatar else None,
+            }
+        )
 
 
-# Получение информации о пользователе (проверка текущего пользователя)
 class WhoAmIView(APIView):
-    permission_classes = [IsAuthenticated]  # Только для авторизованных пользователей
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         return Response({"username": request.user.username})
 
 
 class FileUploadView(APIView):
-    # permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request):
@@ -141,7 +132,29 @@ class FileUploadView(APIView):
 
         user_file = UserFile.objects.create(user=request.user, file=file_obj)
 
-        # Используем сериализатор вместо ручного JSON
         return Response(
             UserFileSerializer(user_file).data, status=status.HTTP_201_CREATED
+        )
+
+
+class SetProfileInfoView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request):
+        user = request.user
+
+        avatar = request.FILES.get("avatar")
+        if avatar:
+            user.avatar = avatar
+            user.save()
+
+        return Response({"detail": "Avatar updated"}, status=status.HTTP_200_OK)
+
+
+class GetProfileInfoView(APIView):
+    def get(self, request):
+        user = request.user
+        return Response(
+            {"ava": user.avatar.url if user.avatar else None},
+            status=status.HTTP_200_OK,
         )
