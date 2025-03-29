@@ -2,14 +2,16 @@ import React, {useState} from "react";
 import './DocPageStyle.css';
 import A4 from "../../components/A4/A4.jsx";
 import {useLocation} from "react-router-dom";
+import {DefaultVariables} from "../../components/DefaultVariables.jsx";
 
-const DocPage = ({authorization = false}) => {
+const DocPage = () => {
+    const {isAuthenticated }= DefaultVariables();
     const location = useLocation();
     const name = location.state?.name || "Name of document";
     const [isSaved, setIsSaved] = useState(false);
 
     const handleSave = () => {
-        if (authorization){
+        if (isAuthenticated){
             setIsSaved(!isSaved);
             alert("Saved successfully");
         }

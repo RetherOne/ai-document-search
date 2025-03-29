@@ -1,7 +1,10 @@
 import React from 'react';
 import './ProfileStyle.css';
+import {DefaultVariables} from "../../components/DefaultVariables.jsx";
 
-const Profile = ({username, csrfToken }) => {
+const Profile = () => {
+    const {username, csrfToken}= DefaultVariables();
+
     const handleSettings = (e) => {
         const uploadedFile = e.target.files[0];
         const formData = new FormData();

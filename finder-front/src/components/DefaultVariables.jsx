@@ -1,23 +1,13 @@
-import { createContext, useContext, useState } from "react";
+import { create } from "zustand";
 
-const AuthContext = createContext();
+export const DefaultVariables = create((set) => ({
+    isAuthenticated: false,
+    username: "Unauthorized",
+    avatarUrl: "avatarUrl None",
+    csrfToken: "csrfToken None",
 
-export const DefaultVariables = ({ children }) => {
-    const [isAuthenticated, setAuthorization] = useState(false);
-    const [username, setUsername] = useState("Unauthorized");
-    const [avatarUrl, setAvatarUrl] = useState("avatarUrl None");
-    const [csrfToken, setCsrfToken] = useState("csrfToken None");
-
-    return (
-        <AuthContext.Provider value={{
-            isAuthenticated, setAuthorization,
-            username, setUsername,
-            avatarUrl, setAvatarUrl,
-            csrfToken, setCsrfToken
-        }}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
-
-export const useAuth = () => useContext(AuthContext);
+    setAuthorization: (isAuthenticated) => set({ isAuthenticated }),
+    setUsername: (username) => set({ username }),
+    setAvatarUrl: (avatarUrl) => set({ avatarUrl }),
+    setCsrfToken: (csrfToken) => set({ csrfToken }),
+}))

@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import './App.css'
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop.jsx";
@@ -14,20 +14,11 @@ import AllDocuments from "./pages/AllDocuments/AllDocuments.jsx";
 import About from "./pages/About/About.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
 import MoreDocuments from "./pages/MoreDocuments/MoreDocuments.jsx";
+import { DefaultVariables } from "./components/DefaultVariables.jsx";
+
 
 function App() {
-    const [isAuthenticated, setAuthorization] = useState(false);
-    const [username, setUsername] = useState("Unauthorized");
-    const [avatarUrl, setAvatarUrl] = useState("avatarUrl None");
-    const [csrfToken, setCsrfToken] = useState("csrfToken None");
-
-    useEffect(() => {
-        console.log('Authorization state changed:', isAuthenticated);
-    }, [isAuthenticated]);
-
-    useEffect(() => {
-        console.log(csrfToken);
-    }, [csrfToken]);
+    const {setAuthorization, setUsername,setAvatarUrl, csrfToken, setCsrfToken}= DefaultVariables();
 
     const getCsrfToken = () => {
         fetch("http://localhost:8000/api/csrf/", {
@@ -71,20 +62,19 @@ function App() {
         <BrowserRouter>
             <div className="main-app">
                 <ScrollToTop />
-                <Header authorization={isAuthenticated} setAuthorization={setAuthorization} setUsername={setUsername} getCsrfToken={getCsrfToken} setAvatarUrl={setAvatarUrl} avatarUrl={avatarUrl}/>
+                <Header getCsrfToken={getCsrfToken}/>
                 <Routes>
                     <Route path="/" element={<Home/>} />
                     <Route path="/result" element={<Results />} />
-                    <Route path="/document" element={<DocPage authorization={isAuthenticated} />} />
-                    <Route path="/singin" element={<SingIn authorizationSeter={setAuthorization} setUsername={setUsername} csrfToken={csrfToken} setAvatarUrl={setAvatarUrl} avatarUrl={avatarUrl}/>} />
-                    <Route path="/register" element={<Register authorizationSeter={setAuthorization} setUsername={setUsername} csrfToken={csrfToken} />} />
-                    <Route path="/profile" element={<Profile setAuthorization={setAuthorization} username={username} csrfToken={csrfToken}/>} />
-                    <Route path="/upload" element={<Upload csrfToken={csrfToken}/>} />
+                    <Route path="/document" element={<DocPage />} />
+                    <Route path="/singin" element={<SingIn />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/upload" element={<Upload />} />
                     <Route path="/all" element={<AllDocuments />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/all/more" element={<MoreDocuments />} />
-
                 </Routes>
             </div>
         </BrowserRouter>

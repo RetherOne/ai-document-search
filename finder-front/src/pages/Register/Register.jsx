@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import './RegistrStyle.css';
 import { Button, Form, Input, TextField } from "react-aria-components";
 import { useNavigate } from 'react-router-dom';
+import {DefaultVariables} from "../../components/DefaultVariables.jsx";
 
-const Register = ({ authorizationSeter, setUsername, csrfToken }) => {
+const Register = () => {
+    const {setAuthorization, setUsername, csrfToken }= DefaultVariables();
+
+
     const [loginError, setLoginError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [emailError, setEmailError] = useState('');
@@ -75,7 +79,7 @@ const Register = ({ authorizationSeter, setUsername, csrfToken }) => {
                 }),
             });
 
-            authorizationSeter(true);
+            setAuthorization(true);
             setUsername(login);
             navigate('/');
         }

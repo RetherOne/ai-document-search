@@ -1,8 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import './HeaderStyle.css'
 import {NavLink, useNavigate} from "react-router-dom";
+import { DefaultVariables } from "../DefaultVariables.jsx";
 
-const Header = ({ authorization , setAuthorization, setUsername, getCsrfToken, setAvatarUrl, avatarUrl}) => {
+const Header = ({getCsrfToken}) => {
+    const {isAuthenticated, setAuthorization, setUsername, avatarUrl }= DefaultVariables();
+
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const navigate = useNavigate();
@@ -12,7 +15,6 @@ const Header = ({ authorization , setAuthorization, setUsername, getCsrfToken, s
     };
 
     const handleClickOutside = (event) => {
-        // Check if the clicked element is outside the menu
         if (menuRef.current && !menuRef.current.contains(event.target)) {
             setMenuOpen(false);
         }
@@ -64,7 +66,7 @@ const Header = ({ authorization , setAuthorization, setUsername, getCsrfToken, s
                     className={({isActive}) => isActive ? 'nav-button isHere' : 'nav-button'}
                     to="/contact">Contact</NavLink>
 
-                {authorization ? (
+                {isAuthenticated ? (
                     <>
                         <NavLink className="singin upload-button" to="/upload">
                             <img src={"/images/Upload.png"}

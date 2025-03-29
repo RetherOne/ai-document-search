@@ -1,7 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import './UploadStyle.css';
+import {DefaultVariables} from "../../components/DefaultVariables.jsx";
 
-const Upload = ({ csrfToken }) => {
+const Upload = () => {
+    const {csrfToken}= DefaultVariables();
+
     const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState(null);
 

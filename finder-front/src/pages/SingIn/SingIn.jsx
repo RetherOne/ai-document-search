@@ -2,10 +2,10 @@ import React, {useEffect, useState} from 'react';
 import './SingInStyle.css'
 import {Button, Form, Input, TextField} from "react-aria-components";
 import { useNavigate } from 'react-router-dom';
+import {DefaultVariables} from "../../components/DefaultVariables.jsx";
 
-const SingIn = ({authorizationSeter, setUsername, csrfToken}) => {
-    const [username, setLocalUsername] = useState("NonE");
-    const [password, setLocalPassword] = useState("NonE");
+const SingIn = () => {
+    const {setAuthorization, setUsername, csrfToken }= DefaultVariables();
 
     const [loginError, setLoginError] = useState("");
     const [passwordError, setPasswordError] = useState("");
@@ -49,7 +49,7 @@ const SingIn = ({authorizationSeter, setUsername, csrfToken}) => {
                 .then(res => res.json())
                 .then((data) => {
                     if (data.detail === "Successfully logged in.") {
-                        authorizationSeter(true);
+                        setAuthorization(true);
                         setUsername(username);
                     } else {
                         console.error("Login failed:", data.detail);
