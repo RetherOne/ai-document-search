@@ -9,9 +9,10 @@ from .views import (
     LoginView,
     LogoutView,
     RegisterView,
+    SearchQueryView,
+    SearchView,
     SessionView,
     SetProfileInfoView,
-    WhoAmIView,
 )
 
 urlpatterns = [
@@ -20,10 +21,9 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="api-login"),
     path("logout/", LogoutView.as_view(), name="api-logout"),
     path("session/", SessionView.as_view(), name="api-session"),
-    path("whoami/", WhoAmIView.as_view(), name="api-whoami"),
     path("upload/", FileUploadView.as_view(), name="api-file-upload"),
     path("profile-data/", GetProfileInfoView.as_view(), name="api-profile-data"),
-    path(
-        "set-profile-data/", SetProfileInfoView.as_view(), name="api-set-profile-data"
-    ),
+    path("set-profile-data/", SetProfileInfoView.as_view(), name="api-set-profdata"),
+    path("search/", SearchView.as_view(), name="api-search"),
+    path("search/query", SearchQueryView.as_view(), name="api-search"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

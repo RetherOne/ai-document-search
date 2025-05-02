@@ -10,12 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+
 import environ
 
 env = environ.Env()
 environ.Env.read_env()
+
+PDF_FOLDER_PATH = env("PDF_FOLDER_PATH")
+QDRANT_DB = env("QDRANT_DB")
+COLLECTION_NAME = env("COLLECTION_NAME")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

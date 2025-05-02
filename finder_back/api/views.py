@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 
 from .models import CustomUser, UserFile
 from .serializers import UserFileSerializer
+from .utils.search_modul import search_query
 
 
 class GetCSRFToken(APIView):
@@ -107,13 +108,6 @@ class SessionView(APIView):
         )
 
 
-class WhoAmIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        return Response({"username": request.user.username})
-
-
 class FileUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
@@ -158,3 +152,25 @@ class GetProfileInfoView(APIView):
             {"ava": user.avatar.url if user.avatar else None},
             status=status.HTTP_200_OK,
         )
+
+
+class SearchView(APIView):
+    def get(self, request):
+        return Response(
+            {"docs": "info"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class SearchQueryView(APIView):
+
+    def post(self, request):
+        query = request.data.get("query", "")
+        print(query)
+        if not query:
+            return Response(
+                {"error": "Missing query"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        results = search_query(query)
+        return Response(results, status=status.HTTP_200_OK)

@@ -26,3 +26,8 @@ class UserFile(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     file = models.FileField(upload_to=user_doc_directory_path)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+
+class ProcessedFile(models.Model):
+    filename = models.CharField(unique=True, max_length=255, primary_key=True)
+    last_modified = models.DateTimeField()
