@@ -155,15 +155,6 @@ class GetProfileInfoView(APIView):
 
 
 class SearchView(APIView):
-    def get(self, request):
-        return Response(
-            {"docs": "info"},
-            status=status.HTTP_200_OK,
-        )
-
-
-class SearchQueryView(APIView):
-
     def post(self, request):
         query = request.data.get("query", "")
         print(query)

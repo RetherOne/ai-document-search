@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.conf.urls.static import static
 from django.urls import path
 
 from .views import (
@@ -9,7 +7,6 @@ from .views import (
     LoginView,
     LogoutView,
     RegisterView,
-    SearchQueryView,
     SearchView,
     SessionView,
     SetProfileInfoView,
@@ -25,5 +22,4 @@ urlpatterns = [
     path("profile-data/", GetProfileInfoView.as_view(), name="api-profile-data"),
     path("set-profile-data/", SetProfileInfoView.as_view(), name="api-set-profdata"),
     path("search/", SearchView.as_view(), name="api-search"),
-    path("search/query", SearchQueryView.as_view(), name="api-search"),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]

@@ -1,3 +1,5 @@
+import re
+
 from django.conf import settings
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient
@@ -24,3 +26,11 @@ if not qdrant.collection_exists(collection_name):
         collection_name=collection_name,
         vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
     )
+
+# --- RegEx ---
+RE_HYPHEN_BREAK = re.compile(r"(\w)-\s+(\w)")
+RE_WHITESPACE = re.compile(r"[\n\r\t]+")
+RE_MULTISPACES = re.compile(r" {2,}")
+RE_PUNCTUATION_SPACING = re.compile(r"\s+([,.!?;:)\]\}\"\'“”])(?=\s|$)")
+RE_OPENING_BRACKETS = re.compile(r"([\(\[\{])\s+")
+RE_SENTENCE_SPLITTER = re.compile(r"(?<=[.!?;])\s+")

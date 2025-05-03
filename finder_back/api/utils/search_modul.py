@@ -1,6 +1,5 @@
 import hashlib
 import os
-import re
 from datetime import datetime
 from statistics import mode
 
@@ -9,14 +8,19 @@ from api.models import ProcessedFile
 from django.utils import timezone
 from qdrant_client.models import PointStruct
 
-from .init import collection_name, model, pdf_folder_path, qdrant, tokenizer
-
-# --- RegEx ---
-RE_HYPHEN_BREAK = re.compile(r"(\w)-\s+(\w)")
-RE_WHITESPACE = re.compile(r"[\n\r\t]+")
-RE_MULTISPACES = re.compile(r" {2,}")
-RE_PUNCTUATION_SPACING = re.compile(r"\s+([,.!?;:)\]\}\"\'“”])(?=\s|$)")
-RE_OPENING_BRACKETS = re.compile(r"([\(\[\{])\s+")
+from .init import (
+    RE_HYPHEN_BREAK,
+    RE_MULTISPACES,
+    RE_OPENING_BRACKETS,
+    RE_PUNCTUATION_SPACING,
+    RE_SENTENCE_SPLITTER,
+    RE_WHITESPACE,
+    collection_name,
+    model,
+    pdf_folder_path,
+    qdrant,
+    tokenizer,
+)
 
 
 def _was_already_processed(filename: str, last_modified_str: str) -> bool:
@@ -87,7 +91,7 @@ def _extract_titles_and_text(path: str) -> dict:
     unique_headings = []
 
     for line in headings:
-        if line not in seen:
+        if line not in seen and len(line.split()) > 1:
             unique_headings.append(line)
             seen.add(line)
 
@@ -103,7 +107,7 @@ def _already_indexed(qdrant, collection, point_id):
     return len(res) > 0
 
 
-def _index_document(qdrant, collection, texts):
+def _index_document(qdrant, collection, texts, filename):
     embeddings = model.encode(texts, return_dense=True, max_length=512)["dense_vecs"]
     points = []
     for text, vector in zip(texts, embeddings):
@@ -111,7 +115,14 @@ def _index_document(qdrant, collection, texts):
         uid = _generate_id_from_text(text)
         if _already_indexed(qdrant, collection, uid):
             continue
-        point = PointStruct(id=uid, vector=vector, payload={"text": text})
+        point = PointStruct(
+            id=uid,
+            vector=vector,
+            payload={
+                "filename": filename,
+                "text": text,
+            },
+        )
         points.append(point)
 
     if points:
@@ -119,11 +130,19 @@ def _index_document(qdrant, collection, texts):
 
 
 def _split_into_sentences(text: str):
-    return re.split(r"(?<=[.!?;])\s+", text)
+    return RE_SENTENCE_SPLITTER.split(text)
 
 
 def _count_tokens(text: str) -> int:
-    return len(tokenizer.encode(text, add_special_tokens=False))
+    return len(
+        tokenizer(
+            text,
+            padding=True,
+            truncation=True,
+            return_tensors="pt",
+            add_special_tokens=False,
+        )
+    )
 
 
 def _create_chunks(sentences, max_tokens: int = 256, overlap_sentences: int = 1):
@@ -215,10 +234,10 @@ def main_check_pdf_files():
         body_chunks = _text_into_chunks(titles_and_text.get("text", []))
 
         all_chunks = titles + body_chunks
-        _index_document(qdrant, collection_name, all_chunks)
+        _index_document(qdrant, collection_name, all_chunks, filename)
         _mark_file_processed(filename, last_modified)
         print(f"{GREEN} [✓] Success! {filename}{RESET}")
     print(f"Continuing to start the server...")
 
 
-main_check_pdf_files()
+# main_check_pdf_files()
