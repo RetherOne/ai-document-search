@@ -2,10 +2,10 @@ import hashlib
 import os
 import uuid
 
-import pymupdf as pdf
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from .utils.preview import generate_preview
 
 
 def user_avatar_directory_path(instance, filename):
@@ -51,42 +51,25 @@ class Document(models.Model):
     file = models.FileField(upload_to=upload_to_documents)
     preview = models.ImageField(upload_to=upload_to_previews, blank=True, null=True)
     is_public = models.BooleanField(default=True)
+    is_indexed = models.BooleanField(default=False)  # ✅ Добавлено
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
     def save(self, *args, **kwargs):
+        preview_needs_generation = self.file and not self.preview
+
         super().save(*args, **kwargs)
-        if self.file and not self.preview:
-            self.generate_preview()
+
+        if preview_needs_generation:
+            # генерируем превью без повторного save-вызова
+            generate_preview(self)
 
     def delete(self, *args, **kwargs):
-
         if self.file and os.path.isfile(self.file.path):
             os.remove(self.file.path)
         if self.preview and os.path.isfile(self.preview.path):
             os.remove(self.preview.path)
 
         super().delete(*args, **kwargs)
-
-    def generate_preview(self):
-
-        pdf_path = self.file.path
-
-        output_folder = os.path.join(settings.MEDIA_ROOT, f"public_files/previews")
-        os.makedirs(output_folder, exist_ok=True)
-
-        doc = pdf.open(pdf_path)
-        page = doc.load_page(0)
-        pix = page.get_pixmap()
-
-        # ['filename', '.pdf']
-        filename = os.path.splitext(os.path.basename(self.file.name))[0]
-
-        image_path = os.path.join(output_folder, f"{filename}.jpg")
-        pix.save(image_path)
-        doc.close()
-
-        self.preview.name = f"public_files/previews/{filename}.jpg"
-        self.save(update_fields=["preview"])

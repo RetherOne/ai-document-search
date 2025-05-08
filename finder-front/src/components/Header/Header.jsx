@@ -85,7 +85,7 @@ const Header = ({getCsrfToken}) => {
                                     }}>
                                 <img
                                     className="user-avatar"
-                                    src={avatarUrl === "avatarUrl None" || !avatarUrl ? "/images/user.jpg" : `http://localhost:8000/api${avatarUrl}`}
+                                    src={avatarUrl === "avatarUrl None" || !avatarUrl ? "/images/user.jpg" : `http://localhost:8000${avatarUrl}`}
                                     alt="User Avatar"
                                 />
                             </button>

@@ -13,14 +13,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
-import environ
+from dotenv import load_dotenv
 
-env = environ.Env()
-environ.Env.read_env()
+load_dotenv()
 
-PDF_FOLDER_PATH = env("PDF_FOLDER_PATH")
-QDRANT_DB = env("QDRANT_DB")
-COLLECTION_NAME = env("COLLECTION_NAME")
+PDF_FOLDER_PATH = os.getenv("PDF_FOLDER_PATH")
+QDRANT_DB = os.getenv("QDRANT_DB")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,13 +29,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+DOMAIN = "http://localhost:8000"
 
 # Application definition
 
@@ -50,6 +49,7 @@ INSTALLED_APPS = [
     "api.apps.ApiConfig",  # new
     "corsheaders",  # new
     "rest_framework",  # new
+    "django_q",  # new
 ]
 
 MIDDLEWARE = [
@@ -90,11 +90,11 @@ WSGI_APPLICATION = "finder_back.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USER"),
-        "PASSWORD": env("DB_PASSWORD"),
-        "HOST": env("DB_HOST"),
-        "PORT": env("DB_PORT"),
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
@@ -168,3 +168,49 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 CORS_ALLOW_CREDENTIALS = True
+
+
+Q_CLUSTER = {
+    "name": "default",
+    "workers": 1,  # Количество потоков обработки задач
+    "recycle": 500,
+    "timeout": 300,  # Задача может выполняться до 5 минут
+    "retry": 310,
+    "queue_limit": 50,
+    "bulk": 10,
+    "orm": "default",  # Используем Django ORM (PostgreSQL)
+    "save_limit": 250,  # Кол-во задач, сохраняемых в базе
+    "label": "Django Q Cluster",
+    "sync": False,  # Обязательно False, чтобы задачи были асинхронными
+}
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,  # Не отключать встроенные логгеры Django
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name} - {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "logs", "project.log"),
+            "formatter": "verbose",
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "api": {
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}

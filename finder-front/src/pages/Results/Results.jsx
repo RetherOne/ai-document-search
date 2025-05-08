@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import './ResultsStyle.css';
 import { useLocation } from 'react-router-dom';
 import SearchBar from "../../components/SearchBar/SearchBar.jsx";
@@ -6,13 +6,13 @@ import TagSelected from "../../components/Tags/TagSelected.jsx";
 import TagCheckBox from "../../components/Tags/TagCheckBox.jsx";
 import Document from "../../components/Document/Document.jsx";
 
-
 const Results = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const query = queryParams.get('query');
 
-    const [selectedTags, setSelectedTags] = useState([]); // Хранит выбранные теги
+    const [selectedTags, setSelectedTags] = useState([]);
+    const [documents, setDocuments] = useState([]);
 
     const handleTagChange = (tag, isChecked) => {
         if (isChecked) {
@@ -26,6 +26,33 @@ const Results = () => {
         setSelectedTags((prev) => prev.filter((t) => t !== tag));
     };
 
+    useEffect(() => {
+        if (!query) return;
+
+        const fetchData = async () => {
+            try {
+                const response = await fetch("http://localhost:8000/api/search/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ query }),
+                });
+
+                if (!response.ok) {
+                    console.error("Search failed");
+                    return;
+                }
+
+                const data = await response.json();
+                setDocuments(data);
+            } catch (error) {
+                console.error("Error fetching search results:", error);
+            }
+        };
+
+        fetchData();
+    }, [query]);
 
     return (
         <div className="results-content">
@@ -55,26 +82,20 @@ const Results = () => {
             <div className="search-results">
                 <div className="search-bar-results"><SearchBar initialQuery={query}/></div>
                 <div className="results">
-                    <Document name={query}/>
-                    <Document name="In Search of Lost Time"/>
-                    <Document name="One Hundred Years of Solitude"/>
-                    <Document name="The Catcher in the Rye"/>
-                    <Document name="Nineteen Eighty Four"/>
-                    <Document name="Anna Karenina"/>
-                    <Document name="To Kill a Mockingbird" />
-                    <Document name="1984" />
-                    <Document name="The Great Gatsby" />
-                    <Document name="Pride and Prejudice" />
-                    <Document name="The Catcher in the Rye" />
-                    <Document name="Moby Dick" />
-                    <Document name="The Hobbit" />
-                    <Document name="The Lord of the Rings" />
-                    <Document name="War and Peace" />
-                    <Document name="Crime and Punishment" />
+                    {documents.map((doc, index) => (
+                        <Document
+                            key={index}
+                            name={doc.document_title}
+                            previewImage={doc.preview_image}
+                            tags={doc.tags || []}
+                            text={doc.representative_text}
+                            filepath={doc.filepath}
+                        />
+                    ))}
                 </div>
             </div>
         </div>
-    )
+    );
 };
 
 export default Results;

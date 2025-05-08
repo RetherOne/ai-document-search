@@ -96,7 +96,7 @@ class LogoutView(APIView):
 
 class SessionView(APIView):
     def get(self, request):
-        print(request.user.avatar.url if request.user.avatar else None)
+        # print("!!!Avatar: ", request.user.avatar.url if request.user.avatar else None)
         if not request.user.is_authenticated:
             return Response({"isAuthenticated": False})
         return Response(
