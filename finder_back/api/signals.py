@@ -16,5 +16,4 @@ def schedule_indexing(sender, instance, created, **kwargs):
             "api.tasks.index_document_task",
             instance.id,
             instance.file.path,
-            hook="api.tasks.log_task_result",
         )

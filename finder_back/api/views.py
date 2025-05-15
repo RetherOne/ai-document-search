@@ -1,6 +1,10 @@
+import os
+
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.http import FileResponse, Http404
 from django.middleware.csrf import get_token
 from rest_framework import status
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -10,7 +14,7 @@ from rest_framework.views import APIView
 
 from .models import CustomUser, UserFile
 from .serializers import UserFileSerializer
-from .utils.search_modul import search_query
+from .utils.core import search_query
 
 
 class GetCSRFToken(APIView):
@@ -165,3 +169,17 @@ class SearchView(APIView):
 
         results = search_query(query)
         return Response(results, status=status.HTTP_200_OK)
+
+
+class DownloadFileView(APIView):
+    def get(self, request, file_path):
+        full_path = os.path.join(settings.MEDIA_ROOT, file_path)
+        print("HERE:", full_path)
+        if not os.path.exists(full_path):
+            raise Http404("File not found")
+
+        response = FileResponse(open(full_path, "rb"))
+        response["Content-Disposition"] = (
+            f'attachment; filename="{os.path.basename(full_path)}"'
+        )
+        return response

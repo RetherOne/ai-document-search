@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.egg-info/
+*.eggs/
+*.log
+
+# Django
+*.sqlite3
+db.sqlite3
+*.db
+*.pot
+*.pyc
+*.mo
+*.log
+
+# Django migrations
+**/migrations/
+!**/migrations/__init__.py
+
+# Media and static (optional)
+media/
+staticfiles/
+static_root/
+
+# Qdrant local database directory
+qdrant_storage/
+
+# Docker-related
+*.pid
+*.seed
+*.bak
+*.tar
+*.gz
+*.swp
+*.tmp
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Virtualenv
+.env/
+.venv/
+venv/
+ENV/
+env.bak/
+env/
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+coverage.xml
+*.cover
+
+# mypy
+.mypy_cache/
+
+# Others
+*.log
+logs/

@@ -5,6 +5,7 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from .utils.delete_from_qdrant import delete_qd
 from .utils.preview import generate_preview
 
 
@@ -51,19 +52,16 @@ class Document(models.Model):
     file = models.FileField(upload_to=upload_to_documents)
     preview = models.ImageField(upload_to=upload_to_previews, blank=True, null=True)
     is_public = models.BooleanField(default=True)
-    is_indexed = models.BooleanField(default=False)  # ✅ Добавлено
+    is_indexed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
     def save(self, *args, **kwargs):
-        preview_needs_generation = self.file and not self.preview
-
         super().save(*args, **kwargs)
 
-        if preview_needs_generation:
-            # генерируем превью без повторного save-вызова
+        if self.file and not self.preview:
             generate_preview(self)
 
     def delete(self, *args, **kwargs):
@@ -71,5 +69,5 @@ class Document(models.Model):
             os.remove(self.file.path)
         if self.preview and os.path.isfile(self.preview.path):
             os.remove(self.preview.path)
-
+        delete_qd(self)
         super().delete(*args, **kwargs)

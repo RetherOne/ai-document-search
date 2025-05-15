@@ -38,11 +38,11 @@
     flex-wrap: wrap;
 }
 
-.search-results{
+.right-side-results{
     display: flex;
     padding-bottom: 38px;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 38px;
     flex: 1 0 0;
     align-self: stretch;
@@ -76,9 +76,31 @@
 
 .results{
     display: flex;
-    align-items: center;
-    align-content: center;
     gap: 48px;
+    align-self: stretch;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-content: flex-start;
+    align-items: center;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+}
+
+.loading-spinner img {
+    width: 50px;
+    height: 50px;
+}
+
+.search-results{
+    display: flex;
+    align-items: flex-start;
+    align-content: flex-start;
+    gap: 4px 14px;
     align-self: stretch;
     flex-wrap: wrap;
 }

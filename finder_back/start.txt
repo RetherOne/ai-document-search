@@ -1,0 +1,5 @@
+docker run --rm -p 6333:6333 -v "$(pwd)/qdrant_storage:/qdrant/storage" qdrant/qdrant
+
+python manage.py runserver
+
+python manage.py qcluster

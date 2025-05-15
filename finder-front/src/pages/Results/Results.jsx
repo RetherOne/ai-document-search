@@ -13,6 +13,7 @@ const Results = () => {
 
     const [selectedTags, setSelectedTags] = useState([]);
     const [documents, setDocuments] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const handleTagChange = (tag, isChecked) => {
         if (isChecked) {
@@ -48,6 +49,8 @@ const Results = () => {
                 setDocuments(data);
             } catch (error) {
                 console.error("Error fetching search results:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -79,19 +82,27 @@ const Results = () => {
                     </div>
                 </div>
             </div>
-            <div className="search-results">
+            <div className="right-side-results">
                 <div className="search-bar-results"><SearchBar initialQuery={query}/></div>
-                <div className="results">
-                    {documents.map((doc, index) => (
-                        <Document
-                            key={index}
-                            name={doc.document_title}
-                            previewImage={doc.preview_image}
-                            tags={doc.tags || []}
-                            text={doc.representative_text}
-                            filepath={doc.filepath}
-                        />
-                    ))}
+                <div className="search-results">
+                    {loading ? (
+                        <div className="loading-spinner">
+                            <img src="/images/Loading.gif" alt="Loading..."/>
+                        </div>
+                    ) : (
+                        documents.map((doc, index) => (
+                            <div className="results">
+                                <Document
+                                    key={index}
+                                    name={doc.document_title}
+                                    previewImage={doc.preview_image}
+                                    tags={doc.tags || []}
+                                    text={doc.representative_text}
+                                    filepath={doc.filepath}
+                                />
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
         </div>

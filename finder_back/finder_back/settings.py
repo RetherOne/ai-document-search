@@ -37,6 +37,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 DOMAIN = "http://localhost:8000"
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -123,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Berlin"
 
 USE_I18N = True
 
@@ -171,17 +172,15 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 Q_CLUSTER = {
-    "name": "default",
-    "workers": 1,  # Количество потоков обработки задач
-    "recycle": 500,
-    "timeout": 300,  # Задача может выполняться до 5 минут
-    "retry": 310,
+    "name": "DjangoQ",
+    "workers": 1,
+    "timeout": 40,
     "queue_limit": 50,
     "bulk": 10,
-    "orm": "default",  # Используем Django ORM (PostgreSQL)
-    "save_limit": 250,  # Кол-во задач, сохраняемых в базе
-    "label": "Django Q Cluster",
-    "sync": False,  # Обязательно False, чтобы задачи были асинхронными
+    "orm": "default",
+    "has_replica": True,
+    "poll": 0.1,
+    "scheduler": False,
 }
 
 
