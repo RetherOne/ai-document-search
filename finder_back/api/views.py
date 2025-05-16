@@ -12,8 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import CustomUser, UserFile
-from .serializers import UserFileSerializer
+from .models import CustomUser, Document
 from .utils.core import search_query
 
 
@@ -128,11 +127,16 @@ class FileUploadView(APIView):
                 {"detail": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        user_file = UserFile.objects.create(user=request.user, file=file_obj)
+        is_public = request.data.get("is_public", "false").lower() == "true"
 
-        return Response(
-            UserFileSerializer(user_file).data, status=status.HTTP_201_CREATED
+        document = Document.objects.create(
+            user=request.user,
+            title=file_obj.name,
+            file=file_obj,
+            is_public=is_public,
         )
+
+        return Response({"detail": "Success!"}, status=status.HTTP_201_CREATED)
 
 
 class SetProfileInfoView(APIView):

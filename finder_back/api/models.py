@@ -2,6 +2,8 @@ import hashlib
 import os
 import uuid
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -20,16 +22,11 @@ class CustomUser(AbstractUser):
     avatar = models.ImageField(upload_to=user_avatar_directory_path)
 
 
+# delete this
 def user_doc_directory_path(instance, filename):
     user_hash = hashlib.sha256(str(instance.user.id).encode()).hexdigest()[:14]
 
     return f"users/{user_hash}/{uuid.uuid4().hex[:14]}_{filename}"
-
-
-class UserFile(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    file = models.FileField(upload_to=user_doc_directory_path)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
 class ProcessedFile(models.Model):
@@ -47,8 +44,18 @@ def upload_to_previews(instance, filename):
     return f"public_files/previews/{file_hash}_{filename}"
 
 
+def get_default_superuser_id():
+    User = get_user_model()
+    return User.objects.filter(is_superuser=True).first().id
+
+
 class Document(models.Model):
-    title = models.CharField(max_length=255)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        default=get_default_superuser_id,
+    )
+    title = models.CharField(max_length=255, blank=True)
     file = models.FileField(upload_to=upload_to_documents)
     preview = models.ImageField(upload_to=upload_to_previews, blank=True, null=True)
     is_public = models.BooleanField(default=True)
@@ -59,6 +66,9 @@ class Document(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
+        if not self.title and self.file:
+            filename = os.path.basename(self.file.name)
+            self.title = os.path.splitext(filename)[0]
         super().save(*args, **kwargs)
 
         if self.file and not self.preview:
@@ -69,5 +79,5 @@ class Document(models.Model):
             os.remove(self.file.path)
         if self.preview and os.path.isfile(self.preview.path):
             os.remove(self.preview.path)
-        delete_qd(self)
+        delete_qd(self.id)
         super().delete(*args, **kwargs)
