@@ -5,10 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import {DefaultVariables} from "../../components/DefaultVariables.jsx";
 
 const SingIn = () => {
-    const {setAuthorization, setUsername, csrfToken }= DefaultVariables();
+    const {setAuthorization, setUsername, setAvatarUrl, csrfToken }= DefaultVariables();
 
     const [loginError, setLoginError] = useState("");
     const [passwordError, setPasswordError] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
     const navigate = useNavigate();
 
     const handleSignIn = (event) => {
@@ -44,15 +45,17 @@ const SingIn = () => {
                     "X-CSRFToken": csrfToken,
                 },
                 credentials: "include",
-                body: JSON.stringify({username: login, password: password}),
+                body: JSON.stringify({username: login, password: password, remember_me: rememberMe,}),
             })
                 .then(res => res.json())
-                .then((data) => {
-                    if (data.detail === "Successfully logged in.") {
-                        setAuthorization(true);
-                        setUsername(username);
+                .then(data => {
+                    if (data.isAuthenticated) {
+                        console.log(data);
+                        setAuthorization(data.isAuthenticated);
+                        setUsername(data.username);
+                        setAvatarUrl(data.avatar)
                     } else {
-                        console.error("Login failed:", data.detail);
+                        setAuthorization(false);
                     }
                 })
                 .catch(err => console.error("Login error:", err));
@@ -89,7 +92,11 @@ const SingIn = () => {
                     </div>
                 </TextField>
                 <div className="singin-label">
-                    <Input type="checkbox"/>
+                    <Input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                    />
                     <label>Stay logged in</label>
                 </div>
                 <Button className="singin-button" type="submit">Sing In</Button>

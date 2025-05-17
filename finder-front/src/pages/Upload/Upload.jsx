@@ -137,7 +137,7 @@ const Upload = () => {
                     </label>
 
                     <div style={{ marginTop: "16px" }}>
-                        <button onClick={handleUpload} className="singin upload-button active">
+                        <button onClick={handleUpload} className="register">
                             Submit
                         </button>
                     </div>

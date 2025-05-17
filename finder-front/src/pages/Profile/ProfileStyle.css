@@ -22,3 +22,21 @@
     font-size: 24px;
     font-weight: 700;
 }
+
+.profile-button{
+    display: flex;
+    gap: 15px;
+}
+
+.users-docs{
+    display: flex;
+    flex-wrap: wrap;
+    width: 90vw;
+    gap: 30px;
+}
+
+.doc-text{
+    width: 90vw;
+    font-size: 30px;
+    font-weight: 700;
+}

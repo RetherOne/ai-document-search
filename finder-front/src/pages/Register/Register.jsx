@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import {DefaultVariables} from "../../components/DefaultVariables.jsx";
 
 const Register = () => {
-    const {setAuthorization, setUsername, csrfToken }= DefaultVariables();
+    const {setAuthorization, setUsername, setAvatarUrl, csrfToken }= DefaultVariables();
 
 
     const [loginError, setLoginError] = useState('');
@@ -77,7 +77,17 @@ const Register = () => {
                     email: email,
                     phone: phone,
                 }),
-            });
+            }).then(res => res.json())
+                .then(data => {
+                    if (data.isAuthenticated) {
+                        console.log(data);
+                        setAuthorization(data.isAuthenticated);
+                        setUsername(data.username);
+                        setAvatarUrl(data.avatar)
+                    } else {
+                        setAuthorization(false);
+                    }
+                });
 
             setAuthorization(true);
             setUsername(login);

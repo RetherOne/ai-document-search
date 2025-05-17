@@ -60,8 +60,12 @@ class RegisterView(APIView):
         login(request, user)
 
         return Response(
-            {"detail": "Successfully registered and logged in."},
-            status=status.HTTP_201_CREATED,
+            {
+                "isAuthenticated": True,
+                "username": request.user.username,
+                "avatar": request.user.avatar.url if request.user.avatar else None,
+            },
+            status=status.HTTP_200_OK,
         )
 
 
@@ -69,6 +73,7 @@ class LoginView(APIView):
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
+        remember_me = request.data.get("remember_me", False)
 
         if not username or not password:
             return Response(
@@ -83,7 +88,18 @@ class LoginView(APIView):
             )
 
         login(request, user)
-        return Response({"detail": "Successfully logged in."})
+
+        if not remember_me:
+            request.session.set_expiry(0)
+
+        return Response(
+            {
+                "isAuthenticated": True,
+                "username": request.user.username,
+                "avatar": request.user.avatar.url if request.user.avatar else None,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class LogoutView(APIView):
@@ -107,7 +123,8 @@ class SessionView(APIView):
                 "isAuthenticated": True,
                 "username": request.user.username,
                 "avatar": request.user.avatar.url if request.user.avatar else None,
-            }
+            },
+            status=status.HTTP_200_OK,
         )
 
 
@@ -150,16 +167,42 @@ class SetProfileInfoView(APIView):
             user.avatar = avatar
             user.save()
 
-        return Response({"detail": "Avatar updated"}, status=status.HTTP_200_OK)
-
-
-class GetProfileInfoView(APIView):
-    def get(self, request):
-        user = request.user
         return Response(
-            {"ava": user.avatar.url if user.avatar else None},
+            {
+                "avatar": request.user.avatar.url if request.user.avatar else None,
+            },
             status=status.HTTP_200_OK,
         )
+
+
+class GetUserDocsView(APIView):
+    def get(self, request):
+        documents = Document.objects.filter(user=request.user)
+        data = []
+        for doc in documents:
+            data.append(
+                {
+                    "document_title": doc.title,
+                    "preview_image": (
+                        f"{settings.DOMAIN}{doc.preview.url}" if doc.preview else None
+                    ),
+                    "filepath": doc.file.url if doc.file else None,
+                }
+            )
+
+        return Response({"files": data}, status=status.HTTP_200_OK)
+
+
+# class GetProfileInfoView(APIView):
+#     def get(self, request):
+#         return Response(
+#             {
+#                 "isAuthenticated": True,
+#                 "username": request.user.username,
+#                 "avatar": request.user.avatar.url if request.user.avatar else None,
+#             },
+#             status=status.HTTP_200_OK,
+#         )
 
 
 class SearchView(APIView):
