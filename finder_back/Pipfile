@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 django = "==5.1.7"
 django-cors-headers = "==4.7.0"
-django-environ = "==0.12.0"
 psycopg2 = "==2.9.10"
 djangorestframework = "==3.16.0"
 pillow = "==11.2.1"
@@ -16,6 +15,7 @@ qdrant-client = "==1.14.2"
 pdf2image = "==1.17.0"
 django-q2 = "==1.8.0"
 dotenv = "==0.9.9"
+docx2pdf = "==0.1.8"
 
 [dev-packages]
 

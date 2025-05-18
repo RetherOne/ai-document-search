@@ -7,11 +7,12 @@ from re import compile
 from statistics import mode
 
 import pymupdf as pdf
-from api.models import Document
 from django.conf import settings
 from FlagEmbedding import BGEM3FlagModel
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
+
+from api.models import Document
 
 logger = getLogger(__name__)
 
@@ -219,7 +220,7 @@ def get_document_meta(filepath):
         relative_path = Path(os.path.relpath(filepath, settings.MEDIA_ROOT)).as_posix()
     else:
         relative_path = filepath
-    document = Document.objects.get(file=relative_path)
+    document = Document.objects.get(pdf_file=relative_path)
     try:
         return {
             "title": document.title,

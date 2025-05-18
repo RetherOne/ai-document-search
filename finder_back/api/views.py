@@ -146,12 +146,28 @@ class FileUploadView(APIView):
 
         is_public = request.data.get("is_public", "false").lower() == "true"
 
-        document = Document.objects.create(
-            user=request.user,
-            title=file_obj.name,
-            file=file_obj,
-            is_public=is_public,
-        )
+        filename = file_obj.name.lower()
+        if filename.endswith(".pdf"):
+            Document.objects.create(
+                user=request.user,
+                title=file_obj.name,
+                pdf_file=file_obj,
+                is_public=is_public,
+            )
+        elif filename.endswith(".docx"):
+            Document.objects.create(
+                user=request.user,
+                title=file_obj.name,
+                docx_file=file_obj,
+                is_public=is_public,
+            )
+        else:
+            return Response(
+                {
+                    "detail": "Unsupported file type. Only .pdf and .docx files are allowed."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         return Response({"detail": "Success!"}, status=status.HTTP_201_CREATED)
 
@@ -186,7 +202,7 @@ class GetUserDocsView(APIView):
                     "preview_image": (
                         f"{settings.DOMAIN}{doc.preview.url}" if doc.preview else None
                     ),
-                    "filepath": doc.file.url if doc.file else None,
+                    "filepath": doc.pdf_file.url if doc.pdf_file else None,
                 }
             )
 

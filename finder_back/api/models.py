@@ -9,6 +9,7 @@ from django.db import models
 
 from .utils.delete_from_qdrant import delete_qd
 from .utils.preview import generate_preview
+from django_q.tasks import async_task
 
 
 def user_avatar_directory_path(instance, filename):
@@ -34,9 +35,19 @@ class ProcessedFile(models.Model):
     last_modified = models.DateTimeField()
 
 
-def upload_to_documents(instance, filename):
+def upload_to_pdfs(instance, filename):
     file_hash = hashlib.sha256(str(filename).encode()).hexdigest()[:14]
     return f"public_files/pdfs/{file_hash}_{filename}"
+
+
+# delete
+def upload_to_documents(instance, filename):
+    pass
+
+
+def upload_to_words(instance, filename):
+    file_hash = hashlib.sha256(str(filename).encode()).hexdigest()[:14]
+    return f"public_files/words/{file_hash}_{filename}"
 
 
 def upload_to_previews(instance, filename):
@@ -56,7 +67,8 @@ class Document(models.Model):
         default=get_default_superuser_id,
     )
     title = models.CharField(max_length=255, blank=True)
-    file = models.FileField(upload_to=upload_to_documents)
+    pdf_file = models.FileField(upload_to=upload_to_pdfs, null=True)
+    docx_file = models.FileField(upload_to=upload_to_words, blank=True, null=True)
     preview = models.ImageField(upload_to=upload_to_previews, blank=True, null=True)
     is_public = models.BooleanField(default=True)
     is_indexed = models.BooleanField(default=False)
@@ -66,18 +78,41 @@ class Document(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        if not self.title and self.file:
-            filename = os.path.basename(self.file.name)
-            self.title = os.path.splitext(filename)[0]
+        if not self.title:
+            filename = None
+            if self.pdf_file:
+                filename = os.path.basename(self.pdf_file.name)
+            elif self.docx_file:
+                filename = os.path.basename(self.docx_file.name)
+            if filename:
+                self.title = os.path.splitext(filename)[0]
+
         super().save(*args, **kwargs)
 
-        if self.file and not self.preview:
+        if self.pdf_file and not self.preview:
             generate_preview(self)
 
     def delete(self, *args, **kwargs):
-        if self.file and os.path.isfile(self.file.path):
-            os.remove(self.file.path)
+        if self.pdf_file and os.path.isfile(self.pdf_file.path):
+            os.remove(self.pdf_file.path)
+        if self.docx_file and os.path.isfile(self.docx_file.path):
+            os.remove(self.docx_file.path)
         if self.preview and os.path.isfile(self.preview.path):
             os.remove(self.preview.path)
         delete_qd(self.id)
         super().delete(*args, **kwargs)
+
+
+class DocumentsInProgress(models.Model):
+    TASK_CHOICES = [
+        ("index", "Indexing"),
+        ("convert", "Convert DOCX to PDF"),
+    ]
+
+    document = models.ForeignKey("Document", on_delete=models.CASCADE)
+    task_type = models.CharField(max_length=20, choices=TASK_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_completed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ("document", "task_type")
