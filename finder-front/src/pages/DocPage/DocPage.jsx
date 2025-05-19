@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import './DocPageStyle.css';
 import {useLocation} from "react-router-dom";
 import { Document, Page, pdfjs } from 'react-pdf';
@@ -6,11 +6,11 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import {DefaultVariables} from "../../components/DefaultVariables.jsx";
 
-
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.min.mjs',
     import.meta.url
 ).toString();
+
 
 const PDFViewer = ({ fileUrl }) => {
     const [numPages, setNumPages] = useState(null);
@@ -18,7 +18,7 @@ const PDFViewer = ({ fileUrl }) => {
     const onDocumentLoadSuccess = ({ numPages }) => {
         setNumPages(numPages);
     };
-
+    console.log(fileUrl)
     return (
         <div className="pdf-viewer">
             <Document file={fileUrl} onLoadSuccess={onDocumentLoadSuccess}>
@@ -38,28 +38,114 @@ const PDFViewer = ({ fileUrl }) => {
 };
 
 const DocPage = () => {
-    const {isAuthenticated} = DefaultVariables();
+    const {isAuthenticated, csrfToken} = DefaultVariables();
     const location = useLocation();
-    const {name = "Name of document", text = "", filepath = ""} = location.state || {};
+    const {docId = null, name = "Name of document", text = "", filepath = ""} = location.state || {};
     const [isSaved, setIsSaved] = useState(false);
-    const relativePath = filepath.replace("/media/", "");
-    const downloadUrl = `http://127.0.0.1:8000/api/download/${relativePath}`;
+    const [isOwner, setIsOwner] = useState(true);
+    const [loading, setLoading] = useState(false);
 
-    const handleSave = () => {
-        if (isAuthenticated){
-            setIsSaved(!isSaved);
-            alert("Saved successfully");
+    const [owner, setOwner] = useState("");
+
+
+    const useThrottle = () => {
+        const throttleSeed = useRef(null);
+
+        const throttleFunction = useRef((func, delay=200) => {
+            if (!throttleSeed.current) {
+                func();
+                throttleSeed.current = setTimeout(() => {
+                    throttleSeed.current = null;
+                }, delay);
+            }
+        });
+
+        return throttleFunction.current;
+    };
+
+    const toggleSave = async () => {
+        if (loading || !isAuthenticated) return;
+
+        setLoading(true);
+        setIsSaved(!isSaved);
+
+        const res = await fetch("http://localhost:8000/api/doc-page/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            credentials: "include",
+            body: JSON.stringify({ document_id: docId }),
+        });
+
+        const data = await res.json();
+        if (data.status === "saved") {
+            setIsSaved(true);
+        } else if (data.status === "removed") {
+            setIsSaved(false);
         }
-        else{
-            alert("You must be logged in!");
+        setLoading(false);
+    };
+
+    const throttleSave = useThrottle(1000);
+
+    const handleSaveClick = () => {
+        throttleSave(toggleSave);
+    };
+
+    const handleDownload = async () => {
+        const res = await fetch("http://localhost:8000/api/download/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            credentials: "include",
+            body: JSON.stringify({ document_id: docId }),
+        })
+
+        if (res.ok) {
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
         }
     };
-    const handleReport = () => {
-        alert("Report successfully");
+
+    const throttleDownload = useThrottle(1000);
+
+    const handleDownloadClick = () => {
+        throttleDownload(handleDownload);
     };
 
     useEffect(() => {
-        console.log(location.state);
+
+        fetch(`http://localhost:8000/api/doc-page/?document_id=${docId}`, {
+            method: "GET",
+            headers: {
+                "X-CSRFToken": csrfToken,
+            },
+            credentials: "include",
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                setOwner(data.owner_username)
+                if (data.status === "owner") {
+                    setIsOwner(true);
+                    setIsSaved(false);
+                } else {
+                    setIsOwner(false);
+                    setIsSaved(data.status);
+                }
+            });
+
+
     }, []);
 
     return (
@@ -67,7 +153,7 @@ const DocPage = () => {
             <div className="left-side-doc">
 
                     <p className="p-name">{name}</p>
-                    <p className="p-description">Description..........................................................................................................................</p>
+                    <p className="p-description">Published by: {owner}</p>
 
                 <div className="div-tags">
                     <p className="p-tag">#Tag</p>
@@ -80,16 +166,17 @@ const DocPage = () => {
                 <div className="div-operations-main">
                     <p className="p-operations">Operations</p>
                     <div className="div-operations">
-                        <a className="doc-operation-but" href={downloadUrl} download={name}>
+                        <button className="doc-operation-but" onClick={handleDownloadClick}>
                             <img src="/images/Download.png" alt="Download img"/>
                             <p>Download</p>
-                        </a>
-                        <button className="doc-operation-but" onClick={handleSave}>
-                            <img src={isSaved ? "/images/Bookmark_saved.png" : "/images/Bookmark.png"}
-                                 alt={isSaved ? "Saved img" : "Save img"}/>
-                            {isSaved ? "Saved" : "Save"}
                         </button>
-                        <button className="doc-operation-but" style={{padding: "12px"}} onClick={handleReport}>
+                        {!isOwner && isAuthenticated && (
+                            <button className="doc-operation-but" onClick={handleSaveClick} disabled={loading}>
+                                <img src={isSaved ? "/images/Bookmark_saved.png" : "/images/Bookmark.png"}
+                                     alt={isSaved ? "Saved img" : "Save img"}/>
+                                {isSaved ? "Saved" : "Save"}
+                            </button>)}
+                        <button className="doc-operation-but" style={{padding: "12px"}}>
                             <img src="/images/Alert.png" alt="Save img"/>
                             Report
                         </button>
@@ -99,7 +186,7 @@ const DocPage = () => {
             </div>
 
             <div className="main-part-doc">
-                <PDFViewer fileUrl={`http://127.0.0.1:8000${filepath}`} />
+                <PDFViewer fileUrl={`http://localhost:8000${filepath}`} />
             </div>
 
         </div>

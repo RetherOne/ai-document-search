@@ -91,9 +91,9 @@ const Results = () => {
                         </div>
                     ) : (
                         documents.map((doc, index) => (
-                            <div className="results">
+                            <div className="results" key={index}>
                                 <Document
-                                    key={index}
+                                    docId={doc.document_id}
                                     name={doc.document_title}
                                     previewImage={doc.preview_image}
                                     tags={doc.tags || []}

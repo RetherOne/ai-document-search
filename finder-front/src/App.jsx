@@ -1,5 +1,4 @@
 import {useEffect} from "react";
-import './App.css'
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import Header from "./components/Header/Header.jsx";
@@ -14,7 +13,9 @@ import AllDocuments from "./pages/AllDocuments/AllDocuments.jsx";
 import About from "./pages/About/About.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
 import MoreDocuments from "./pages/MoreDocuments/MoreDocuments.jsx";
+import Saved from "./pages/Saved/Saved.jsx";
 import { DefaultVariables } from "./components/DefaultVariables.jsx";
+import './App.css'
 
 
 function App() {
@@ -70,6 +71,7 @@ function App() {
                     <Route path="/singin" element={<SingIn />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/saved" element={<Saved />} />
                     <Route path="/upload" element={<Upload />} />
                     <Route path="/all" element={<AllDocuments />} />
                     <Route path="/about" element={<About />} />

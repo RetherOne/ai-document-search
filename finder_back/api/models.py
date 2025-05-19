@@ -9,7 +9,6 @@ from django.db import models
 
 from .utils.delete_from_qdrant import delete_qd
 from .utils.preview import generate_preview
-from django_q.tasks import async_task
 
 
 def user_avatar_directory_path(instance, filename):
@@ -21,6 +20,9 @@ def user_avatar_directory_path(instance, filename):
 class CustomUser(AbstractUser):
     phone_number = models.CharField(max_length=13, unique=True)
     avatar = models.ImageField(upload_to=user_avatar_directory_path)
+    saved_documents = models.ManyToManyField(
+        "Document", related_name="saved_by_users", blank=True
+    )
 
 
 # delete this
@@ -70,6 +72,7 @@ class Document(models.Model):
     pdf_file = models.FileField(upload_to=upload_to_pdfs, null=True)
     docx_file = models.FileField(upload_to=upload_to_words, blank=True, null=True)
     preview = models.ImageField(upload_to=upload_to_previews, blank=True, null=True)
+    downloads_count = models.PositiveIntegerField(default=0)
     is_public = models.BooleanField(default=True)
     is_indexed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

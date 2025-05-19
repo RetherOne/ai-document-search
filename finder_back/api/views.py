@@ -4,7 +4,8 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.http import FileResponse, Http404
+from django.db.models import F
+from django.http import FileResponse
 from django.middleware.csrf import get_token
 from rest_framework import status
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -20,7 +21,6 @@ class GetCSRFToken(APIView):
     def get(self, request):
         response = Response({"detail": "CSRF cookie set"})
         response["X-CSRFToken"] = get_token(request)
-        print(response["X-CSRFToken"])
         return response
 
 
@@ -88,7 +88,6 @@ class LoginView(APIView):
             )
 
         login(request, user)
-
         if not remember_me:
             request.session.set_expiry(0)
 
@@ -115,7 +114,6 @@ class LogoutView(APIView):
 
 class SessionView(APIView):
     def get(self, request):
-        # print("!!!Avatar: ", request.user.avatar.url if request.user.avatar else None)
         if not request.user.is_authenticated:
             return Response({"isAuthenticated": False})
         return Response(
@@ -191,13 +189,14 @@ class SetProfileInfoView(APIView):
         )
 
 
-class GetUserDocsView(APIView):
+class GetUserDataView(APIView):
     def get(self, request):
-        documents = Document.objects.filter(user=request.user)
+        documents = Document.objects.filter(user=request.user).order_by("title")
         data = []
         for doc in documents:
             data.append(
                 {
+                    "document_id": doc.id,
                     "document_title": doc.title,
                     "preview_image": (
                         f"{settings.DOMAIN}{doc.preview.url}" if doc.preview else None
@@ -206,25 +205,42 @@ class GetUserDocsView(APIView):
                 }
             )
 
-        return Response({"files": data}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "isAuthenticated": True,
+                "username": request.user.username,
+                "email": request.user.email,
+                "phone_number": request.user.phone_number,
+                "avatar": request.user.avatar.url if request.user.avatar else None,
+                "files": data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
+    def post(self, request):
+        document_id = request.data.get("document_id")
+        if not document_id:
+            return Response(
+                {"error": "No document_id provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-# class GetProfileInfoView(APIView):
-#     def get(self, request):
-#         return Response(
-#             {
-#                 "isAuthenticated": True,
-#                 "username": request.user.username,
-#                 "avatar": request.user.avatar.url if request.user.avatar else None,
-#             },
-#             status=status.HTTP_200_OK,
-#         )
+        try:
+            document = Document.objects.get(id=document_id)
+        except Document.DoesNotExist:
+            return Response(
+                {"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if document.user != request.user:
+            return Response({"error": "Access denied"}, status=status.HTTP_403)
+
+        document.delete()
+        return Response({"status": "deleted"}, status=status.HTTP_200_OK)
 
 
 class SearchView(APIView):
     def post(self, request):
         query = request.data.get("query", "")
-        print(query)
         if not query:
             return Response(
                 {"error": "Missing query"}, status=status.HTTP_400_BAD_REQUEST
@@ -235,14 +251,150 @@ class SearchView(APIView):
 
 
 class DownloadFileView(APIView):
-    def get(self, request, file_path):
-        full_path = os.path.join(settings.MEDIA_ROOT, file_path)
-        print("HERE:", full_path)
-        if not os.path.exists(full_path):
-            raise Http404("File not found")
 
-        response = FileResponse(open(full_path, "rb"))
+    def post(self, request):
+        doc_id = request.data.get("document_id")
+        try:
+            document = Document.objects.get(id=doc_id)
+        except Document.DoesNotExist:
+            return Response(
+                {"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if document.docx_file and document.docx_file.name:
+            file_field = document.docx_file
+        elif document.pdf_file and document.pdf_file.name:
+            file_field = document.pdf_file
+        else:
+            return Response(
+                {"error": "No file available for this document"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        file_path = file_field.path
+        if not os.path.exists(file_path):
+            return Response(
+                {"error": "File not found on server"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if request.user.is_authenticated:
+            Document.objects.filter(id=document.id).update(
+                downloads_count=F("downloads_count") + 1
+            )
+
+        response = FileResponse(open(file_path, "rb"))
         response["Content-Disposition"] = (
-            f'attachment; filename="{os.path.basename(full_path)}"'
+            f'attachment; filename="{os.path.basename(file_path)}"'
         )
         return response
+
+    def get(self, request):
+        top_docs = Document.objects.order_by("-downloads_count")[:10]
+
+        data = [
+            {
+                "document_id": doc.id,
+                "document_title": doc.title,
+                "preview_image": (
+                    f"{settings.DOMAIN}{doc.preview.url}" if doc.preview else None
+                ),
+                "filepath": doc.pdf_file.url if doc.pdf_file else None,
+                "downloads_count": doc.downloads_count,
+            }
+            for doc in top_docs
+        ]
+
+        return Response(data)
+
+
+class DocumentPageView(APIView):
+
+    def get(self, request):
+        document_id = request.query_params.get("document_id")
+
+        if not document_id:
+            return Response(
+                {"error": "document_id is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            document = Document.objects.get(id=document_id)
+        except Document.DoesNotExist:
+            return Response({"error": "Document not found"}, status=404)
+
+        if not request.user.is_authenticated:
+            return Response(
+                {"status": False, "owner_username": document.user.username},
+                status=status.HTTP_200_OK,
+            )
+
+        if document.user == request.user:
+            return Response(
+                {"status": "owner", "owner_username": document.user.username},
+                status=status.HTTP_200_OK,
+            )
+
+        is_saved = document in request.user.saved_documents.all()
+        return Response(
+            {"status": is_saved, "owner_username": document.user.username},
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request):
+
+        document_id = request.data.get("document_id")
+        if not document_id:
+            return Response(
+                {"error": "document_id is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            document = Document.objects.get(id=document_id)
+        except Document.DoesNotExist:
+            return Response({"error": "Document not found"}, status=404)
+
+        if document in request.user.saved_documents.all():
+            request.user.saved_documents.remove(document)
+            return Response({"status": "removed"}, status=status.HTTP_200_OK)
+        else:
+            request.user.saved_documents.add(document)
+            return Response({"status": "saved"}, status=status.HTTP_200_OK)
+
+
+class SavedDocView(APIView):
+    def get(self, request):
+        user = request.user
+        saved_docs = user.saved_documents.all()
+
+        data = [
+            {
+                "id": doc.id,
+                "title": doc.title,
+                "preview": (
+                    f"{settings.DOMAIN}{doc.preview.url}" if doc.preview else None
+                ),
+                "pdf_file": doc.pdf_file.url if doc.pdf_file else None,
+            }
+            for doc in saved_docs
+        ]
+        return Response(data)
+
+
+class AllDocsView(APIView):
+
+    def get(self, request):
+        docs = Document.objects.filter(is_indexed=True).order_by("title")
+
+        data = [
+            {
+                "document_id": doc.id,
+                "document_title": doc.title,
+                "preview_image": (
+                    f"{settings.DOMAIN}{doc.preview.url}" if doc.preview else None
+                ),
+                "filepath": doc.pdf_file.url if doc.pdf_file else None,
+            }
+            for doc in docs
+        ]
+
+        return Response(data, status=status.HTTP_200_OK)

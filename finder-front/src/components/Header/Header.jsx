@@ -99,6 +99,13 @@ const Header = ({getCsrfToken}) => {
                                              style={{width: '16px', height: '16px'}}/>
                                         Profile
                                     </NavLink>
+                                    <NavLink to="/saved" className="menu-button"
+                                             onClick={toggleMenu}>
+                                        <img src="/images/Bookmark_saved.png"
+                                             alt="Log Out"
+                                             style={{width: '16px', height: '16px'}}/>
+                                        Saved
+                                    </NavLink>
                                     <button className="menu-button"
                                             onClick={handleLogout}>
                                         <img src="/images/LogOut.png"

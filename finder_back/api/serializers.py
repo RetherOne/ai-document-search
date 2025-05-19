@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from .models import UserFile
+from api.models import Document
 
 
-class UserFileSerializer(serializers.ModelSerializer):
+class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserFile
-        fields = ["id", "file", "uploaded_at"]
+        model = Document
+        fields = ["id", "title", "preview", "pdf_file"]

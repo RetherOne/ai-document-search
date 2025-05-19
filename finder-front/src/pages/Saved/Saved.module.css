@@ -1,0 +1,20 @@
+.main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 28px;
+    flex: 1 0 0;
+    align-self: stretch;
+}
+
+.text{
+
+}
+
+.saved{
+    display: flex;
+    flex-wrap: wrap;
+    width: 90vw;
+    gap: 30px;
+}

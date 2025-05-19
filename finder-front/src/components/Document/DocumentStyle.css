@@ -28,3 +28,30 @@
     font-size: 14px;
     color: #757575;
 }
+
+.doc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 85%;
+}
+
+.doc-name {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    margin: 0;
+}
+
+.doc-tags {
+    margin: 0;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}

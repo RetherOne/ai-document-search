@@ -241,7 +241,7 @@ def search_query(query):
     results = qdrant.search(
         collection_name=collection_name,
         query_vector=query_vector,
-        limit=10,
+        limit=20,
     )
 
     grouped = defaultdict(list)
@@ -251,6 +251,7 @@ def search_query(query):
         if filepath:
             grouped[filepath].append(
                 {
+                    "document_id": result.payload.get("document_id", ""),
                     "text": result.payload.get("text", ""),
                     "score": result.score,
                 }
@@ -261,22 +262,22 @@ def search_query(query):
         best_chunk = max(chunks, key=lambda x: x["score"])
         meta = get_document_meta(filepath)
 
-        # Построение корректной ссылки на файл
         if filepath.startswith(settings.MEDIA_ROOT):
             relative_path = Path(
                 os.path.relpath(filepath, settings.MEDIA_ROOT)
             ).as_posix()
             document_url = f"{settings.MEDIA_URL}{relative_path}"
         else:
-            document_url = filepath  # или любой другой способ генерации URL
-        print(document_url)
+            document_url = filepath
+
         response.append(
             {
+                "document_id": best_chunk["document_id"],
                 "document_title": meta["title"],
                 "preview_image": meta["preview_image"],
                 "representative_text": best_chunk["text"],
                 "score": best_chunk["score"],
-                "filepath": document_url,  # здесь будет ссылка, включающая MEDIA_URL
+                "filepath": document_url,
             }
         )
 

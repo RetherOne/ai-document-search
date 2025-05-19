@@ -4,12 +4,13 @@ import {DefaultVariables} from "../../components/DefaultVariables.jsx";
 import Document from "../../components/Document/Document.jsx";
 
 const Profile = () => {
-    const {setAvatarUrl, username, csrfToken, avatarUrl}= DefaultVariables();
+    const {setUsername, setEmail, setPhone_number, setAvatarUrl, setAuthorization, username, email, phone_number, csrfToken, avatarUrl}= DefaultVariables();
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showUploadForm, setShowUploadForm] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [dragActive, setDragActive] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState(null);
 
 
     const toggleUploadForm = () => {
@@ -63,8 +64,27 @@ const Profile = () => {
         });
     };
 
-    useEffect(() => {
-        fetch("http://localhost:8000/api/get-user-docs/", {
+    const handleDelete = async (id) => {
+        const res = await fetch("http://localhost:8000/api/get-user-data/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            credentials: "include",
+            body: JSON.stringify({ document_id: id }),
+        })
+        const data = await res.json();
+
+        if (data.status === "deleted") {
+            userData()
+        }
+
+
+    };
+
+    const userData = () =>{
+        fetch("http://localhost:8000/api/get-user-data/", {
             method: "GET",
             headers: {
                 "X-CSRFToken": csrfToken,
@@ -73,16 +93,26 @@ const Profile = () => {
         })
             .then(response => response.json())
             .then(data => {
-                setDocuments(data.files);
-                setLoading(false);
+                setAuthorization(data.isAuthenticated)
+                if(data.isAuthenticated) {
+                    setUsername(data.username);
+                    setEmail(data.email);
+                    setPhone_number(data.phone_number);
+                    setDocuments(data.files);
+                    setLoading(false);
+                }
             })
             .catch(error => {
                 console.error("error get file:", error);
                 setLoading(false);
             });
+    }
+
+    useEffect(() => {
+        userData()
     }, []);
 
-    const [previewUrl, setPreviewUrl] = useState(null);
+
 
     useEffect(() => {
         if (!selectedFile) {
@@ -154,9 +184,8 @@ const Profile = () => {
                 )}
                 <div className="profile-text">
                     <p className="username">{username}</p>
-                    <p>E-mail : example@example.com</p>
-                    <p>Phone number : +1112223334</p>
-                    <p>Address : Example st., 666</p>
+                    <p>E-mail : {email}</p>
+                    <p>Phone number : {phone_number}</p>
                     <div className="profile-button">
                         {showUploadForm && (
                             <button onClick={handleUploadSubmit} className="singin upload-button">
@@ -181,11 +210,12 @@ const Profile = () => {
                     documents.map((doc, index) => (
                         <div className="results" key={index}>
                             <Document
+                                docId={doc.document_id}
                                 name={doc.document_title}
                                 previewImage={doc.preview_image}
-                                tags={doc.tags || []}
-                                text={doc.representative_text}
                                 filepath={doc.filepath}
+                                showDelete={true}
+                                onDelete={(id) => handleDelete(id)}
                             />
                         </div>
                     ))
