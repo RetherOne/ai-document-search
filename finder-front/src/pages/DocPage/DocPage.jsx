@@ -155,13 +155,13 @@ const DocPage = () => {
                     <p className="p-name">{name}</p>
                     <p className="p-description">Published by: {owner}</p>
 
-                <div className="div-tags">
-                    <p className="p-tag">#Tag</p>
-                    <p className="p-tag">#Tag</p>
-                    <p className="p-tag">#Tag</p>
-                    <p className="p-tag">#Tag</p>
-                    <p className="p-tag">#Tag</p>
-                </div>
+                {/*<div className="div-tags">*/}
+                {/*    <p className="p-tag">#Tag</p>*/}
+                {/*    <p className="p-tag">#Tag</p>*/}
+                {/*    <p className="p-tag">#Tag</p>*/}
+                {/*    <p className="p-tag">#Tag</p>*/}
+                {/*    <p className="p-tag">#Tag</p>*/}
+                {/*</div>*/}
 
                 <div className="div-operations-main">
                     <p className="p-operations">Operations</p>
@@ -176,10 +176,10 @@ const DocPage = () => {
                                      alt={isSaved ? "Saved img" : "Save img"}/>
                                 {isSaved ? "Saved" : "Save"}
                             </button>)}
-                        <button className="doc-operation-but" style={{padding: "12px"}}>
-                            <img src="/images/Alert.png" alt="Save img"/>
-                            Report
-                        </button>
+                        {/*<button className="doc-operation-but" style={{padding: "12px"}}>*/}
+                        {/*    <img src="/images/Alert.png" alt="Save img"/>*/}
+                        {/*    Report*/}
+                        {/*</button>*/}
                     </div>
                 </div>
 

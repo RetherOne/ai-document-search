@@ -59,29 +59,29 @@ const Results = () => {
 
     return (
         <div className="results-content">
-            <div className="left-side-results">
-                <div className="filters">
-                    <p>Filters</p>
-                    <div className="filters-tags">
-                        {selectedTags.map((tag) => (
-                            <TagSelected key={tag} tag={tag} onRemove={removeTag}/>
-                        ))}
-                    </div>
-                </div>
-                <div className="tags">
-                    <p>Tags</p>
-                    <div className="tags-list">
-                        {["Tag1", "Tag2", "Tag3", "Tag4"].map((tag) => (
-                            <TagCheckBox
-                                key={tag}
-                                tag={tag}
-                                onChange={handleTagChange}
-                                isChecked={selectedTags.includes(tag)}
-                            />
-                        ))}
-                    </div>
-                </div>
-            </div>
+            {/*<div className="left-side-results">*/}
+            {/*    <div className="filters">*/}
+            {/*        <p>Filters</p>*/}
+            {/*        <div className="filters-tags">*/}
+            {/*            {selectedTags.map((tag) => (*/}
+            {/*                <TagSelected key={tag} tag={tag} onRemove={removeTag}/>*/}
+            {/*            ))}*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*    <div className="tags">*/}
+            {/*        <p>Tags</p>*/}
+            {/*        <div className="tags-list">*/}
+            {/*            {["Tag1", "Tag2", "Tag3", "Tag4"].map((tag) => (*/}
+            {/*                <TagCheckBox*/}
+            {/*                    key={tag}*/}
+            {/*                    tag={tag}*/}
+            {/*                    onChange={handleTagChange}*/}
+            {/*                    isChecked={selectedTags.includes(tag)}*/}
+            {/*                />*/}
+            {/*            ))}*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
             <div className="right-side-results">
                 <div className="search-bar-results"><SearchBar initialQuery={query}/></div>
                 <div className="search-results">
