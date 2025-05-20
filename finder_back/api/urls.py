@@ -3,10 +3,10 @@ from django.urls import path
 from .views import (
     AllDocsView,
     DocumentPageView,
-    DownloadFileView,
+    DownloadView,
     FileUploadView,
     GetCSRFToken,
-    GetUserDataView,
+    UsersDocView,
     LoginView,
     LogoutView,
     RegisterView,
@@ -23,7 +23,7 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="api-logout"),
     path("session/", SessionView.as_view(), name="api-session"),
     path("upload/", FileUploadView.as_view(), name="api-file-upload"),
-    path("get-user-data/", GetUserDataView.as_view(), name="api-get-user-docs"),
+    path("get-user-data/", UsersDocView.as_view(), name="api-get-user-docs"),
     path("doc-page/", DocumentPageView.as_view(), name="api-doc-page"),
     path("saved-docs/", SavedDocView.as_view(), name="api-saved-docs"),
     path("all-docs/", AllDocsView.as_view(), name="api-all-docs"),
@@ -31,7 +31,7 @@ urlpatterns = [
     path("search/", SearchView.as_view(), name="api-search"),
     path(
         "download/",
-        DownloadFileView.as_view(),
+        DownloadView.as_view(),
         name="api_download_file",
     ),
 ]

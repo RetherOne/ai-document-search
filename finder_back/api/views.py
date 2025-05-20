@@ -189,7 +189,7 @@ class SetProfileInfoView(APIView):
         )
 
 
-class GetUserDataView(APIView):
+class UsersDocView(APIView):
     def get(self, request):
         documents = Document.objects.filter(user=request.user).order_by("title")
         data = []
@@ -250,7 +250,7 @@ class SearchView(APIView):
         return Response(results, status=status.HTTP_200_OK)
 
 
-class DownloadFileView(APIView):
+class DownloadView(APIView):
 
     def post(self, request):
         doc_id = request.data.get("document_id")

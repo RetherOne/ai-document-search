@@ -40,10 +40,13 @@
     align-items: center;
     gap: 30px;
     flex: 1 0 0;
+    overflow-y: auto;
+    overflow-x: hidden;
     align-self: stretch;
     border-radius: 8px;
     border: 1px solid #D9D9D9;
     background: #F5F5F5;
+    height: 80vh;
 }
 
 .p-name{

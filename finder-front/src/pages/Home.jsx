@@ -37,6 +37,7 @@ const Home = () => {
         <div className="search">
             <h1 className="center-text">Finder</h1>
             <SearchBar/>
+            <p className="top-text">Top 10 by downloads</p>
             <div className="doc-list">
                 {topDocs.map((doc, index) => (
                     <Document
