@@ -1,4 +1,3 @@
-# finder_back/api/tasks.py
 from logging import getLogger
 from api.models import Document
 from api.models import DocumentsInProgress

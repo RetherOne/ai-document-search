@@ -25,13 +25,6 @@ class CustomUser(AbstractUser):
     )
 
 
-# delete this
-def user_doc_directory_path(instance, filename):
-    user_hash = hashlib.sha256(str(instance.user.id).encode()).hexdigest()[:14]
-
-    return f"users/{user_hash}/{uuid.uuid4().hex[:14]}_{filename}"
-
-
 class ProcessedFile(models.Model):
     filename = models.CharField(unique=True, max_length=255, primary_key=True)
     last_modified = models.DateTimeField()
@@ -40,11 +33,6 @@ class ProcessedFile(models.Model):
 def upload_to_pdfs(instance, filename):
     file_hash = hashlib.sha256(str(filename).encode()).hexdigest()[:14]
     return f"public_files/pdfs/{file_hash}_{filename}"
-
-
-# delete
-def upload_to_documents(instance, filename):
-    pass
 
 
 def upload_to_words(instance, filename):

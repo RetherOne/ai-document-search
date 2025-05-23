@@ -71,7 +71,6 @@ def _create_chunks(sentences, max_tokens: int = 256, overlap_sentences: int = 1)
         current_token_count = 0
         j = i
 
-        # Добавляем предложения в чанк, пока не превысим лимит токенов
         while j < n:
             sentence = sentences[j]
             token_count = _count_tokens(sentence)
@@ -86,9 +85,7 @@ def _create_chunks(sentences, max_tokens: int = 256, overlap_sentences: int = 1)
         if current_chunk:
             chunks.append(" ".join(current_chunk))
 
-        # Сдвигаем указатель с перекрытием
         if j == i:
-            # Если даже одно предложение не влезает — пропускаем его
             j += 1
         i = max(i + 1, j - overlap_sentences)
 
@@ -96,20 +93,15 @@ def _create_chunks(sentences, max_tokens: int = 256, overlap_sentences: int = 1)
 
 
 def _text_into_chunks(lines) -> str:
-    # Объединяем строки в один текст
     text = " ".join(lines)
 
-    # Убираем переносы по дефису
     text = RE_HYPHEN_BREAK.sub(r"\1\2", text)
 
-    # Убираем служебные символы и множественные пробелы
     text = RE_WHITESPACE.sub(" ", text)
     text = RE_MULTISPACES.sub(" ", text)
 
-    # Убираем пробелы перед знаками препинания и скобками/кавычками
     text = RE_PUNCTUATION_SPACING.sub(r"\1", text)
 
-    # Убираем пробелы после открывающих скобок
     text = RE_OPENING_BRACKETS.sub(r"\1", text)
 
     sentences = _split_into_sentences(text.strip())

@@ -1,4 +1,3 @@
-# finder_back/api/signals.py
 from logging import getLogger
 
 from django.db.models.signals import post_save
