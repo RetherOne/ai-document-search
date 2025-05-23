@@ -20,7 +20,7 @@ const Document = ({docId = null, name = "Name of document", previewImage, tags =
                 <button
                     className="delete-button"
                     onClick={() => onDelete(docId)}
-                    title="Удалить документ"
+                    title="Delete document"
                 >
                     <img src="/images/Bin.png" alt="Delete" style={{width: "24px"}}/>
                 </button>

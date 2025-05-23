@@ -3,7 +3,7 @@ import './HeaderStyle.css'
 import {NavLink, useNavigate} from "react-router-dom";
 import { DefaultVariables } from "../DefaultVariables.jsx";
 
-const Header = ({getCsrfToken}) => {
+const Header = () => {
     const {isAuthenticated, setAuthorization, setUsername, avatarUrl }= DefaultVariables();
 
     const [menuOpen, setMenuOpen] = useState(false);
@@ -27,7 +27,6 @@ const Header = ({getCsrfToken}) => {
             .then(res => res.json())
             .then((data) => {
                 if (data.detail === "Successfully logged out.") {
-                    getCsrfToken();
                     setAuthorization(false);
                 } else {
                     console.error("Logout failed:", data.detail);

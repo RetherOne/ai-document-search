@@ -23,10 +23,10 @@ const Home = () => {
                     const data = await res.json();
                     setTopDocs(data);
                 } else {
-                    console.error("Ошибка загрузки топ-документов");
+                    console.error("Error loading");
                 }
             } catch (error) {
-                console.error("Ошибка сети:", error);
+                console.error("Network error:", error);
             }
         };
 

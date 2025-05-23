@@ -10,23 +10,10 @@ const SearchBar = ({ initialQuery = "" }) => {
     const navigate = useNavigate();
     const inputRef = useRef(null);
 
-    const {csrfToken}= DefaultVariables();
-
     const handleSearch = async (event) => {
         event.preventDefault();
         const query = event.target['text-to-search'].value;
         navigate(`/result?query=${encodeURIComponent(query)}`);
-        // const response = await fetch("http://localhost:8000/api/search/", {
-        //     method: "POST",
-        //     headers: {
-        //         "X-CSRFToken": csrfToken,
-        //         "Content-Type": "application/json",
-        //     },
-        //     body:  JSON.stringify({ query }),
-        //     credentials: "include",
-        // })
-        // const data = await response.json();
-        // console.log(data)
     };
 
     return (

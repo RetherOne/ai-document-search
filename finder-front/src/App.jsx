@@ -12,7 +12,6 @@ import Upload from "./pages/Upload/Upload.jsx";
 import AllDocuments from "./pages/AllDocuments/AllDocuments.jsx";
 import About from "./pages/About/About.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
-import MoreDocuments from "./pages/MoreDocuments/MoreDocuments.jsx";
 import Saved from "./pages/Saved/Saved.jsx";
 import { DefaultVariables } from "./components/DefaultVariables.jsx";
 import './App.css'
@@ -27,7 +26,6 @@ function App() {
         })
             .then((res) => {
                 setCsrfToken(res.headers.get("X-CSRFToken"));
-                console.log(csrfToken);
             })
             .catch((err) => {
                 console.log(err);
@@ -54,7 +52,7 @@ function App() {
     };
 
     useEffect(() => {
-        console.log("TokenA:", csrfToken);
+        // console.log("TokenA:", csrfToken);
         getSession();
     }, []);
 
@@ -63,7 +61,7 @@ function App() {
         <BrowserRouter>
             <div className="main-app">
                 <ScrollToTop />
-                <Header getCsrfToken={getCsrfToken}/>
+                <Header />
                 <Routes>
                     <Route path="/" element={<Home/>} />
                     <Route path="/result" element={<Results />} />
@@ -76,7 +74,6 @@ function App() {
                     <Route path="/all" element={<AllDocuments />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
-                    <Route path="/all/more" element={<MoreDocuments />} />
                 </Routes>
             </div>
         </BrowserRouter>

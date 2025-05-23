@@ -12,7 +12,7 @@ const AllDocuments = () => {
         })
             .then((res) => res.json())
             .then((data) => {
-                setDocuments(data); // где setResults — useState для отображения документов
+                setDocuments(data);
             });
     }, []);
 

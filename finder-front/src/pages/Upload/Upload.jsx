@@ -56,7 +56,7 @@ const Upload = () => {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('is_public', isPublic);  // отправка статуса публичности
+        formData.append('is_public', isPublic);
 
         fetch("http://localhost:8000/api/upload/", {
             method: "POST",
@@ -68,15 +68,12 @@ const Upload = () => {
         }).then(response => {
             if (response.ok) {
                 console.log("File uploaded successfully");
-                alert("Файл успешно загружен");
-                setFile(null); // Очистка
+                setFile(null);
             } else {
                 console.log("Upload failed");
-                alert("Не удалось загрузить файл");
             }
         }).catch(error => {
             console.error("Error uploading file:", error);
-            alert("Ошибка загрузки файла");
         });
     };
 
