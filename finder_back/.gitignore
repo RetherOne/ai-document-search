@@ -6,7 +6,7 @@ __pycache__/
 *.pyc
 *.pdb
 *.egg-info/
-*.eggs/
+*.eggs
 *.log
 
 # Django
@@ -48,8 +48,8 @@ qdrant_storage/
 Thumbs.db
 
 # Virtualenv
-.env/
-.venv/
+.env
+.venv
 venv/
 ENV/
 env.bak/
@@ -61,7 +61,7 @@ env/
 # Coverage reports
 htmlcov/
 .coverage
-.tox/
+.tox
 coverage.xml
 *.cover
 
