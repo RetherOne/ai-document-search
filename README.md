@@ -1,4 +1,4 @@
-# Steps to Start the Backend
+# Steps to start the Backend
 
 ## Prerequisites
 
@@ -60,5 +60,43 @@ python manage.py qcluster
 ```
 
 ---
+
+# Steps to start the Frontend
+
+## Prerequisites
+
+- Windows 10 or 11  
+- Node.js **22.14+** (LTS recommended)  
+- npm (comes with Node.js)
+
+---
+
+## Installation
+
+Clone this repository and navigate to the frontend folder("finder-front"):
+
+```bash
+cd finder-front
+```
+
+Install all dependencies:
+
+```bash
+npm install
+```
+
+---
+
+## Running the Application
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+---
+
+
 
 
