@@ -11,7 +11,7 @@
 
 ## Installation
 
-Clone this repository and navigate to the backend folder(finder_back):
+Clone this repository and navigate to the backend folder(`finder_back`):
 
 ```bash
 cd finder_back
@@ -37,7 +37,7 @@ You will need **three separate terminals** to run this project.
 
 ### 1. Start Qdrant (Vector Database)
 
-Run Qdrant in a Docker container:
+Run Qdrant in a Docker container, from the `finder_back` directory:
 
 ```bash
 docker run --rm -p 6333:6333 -v "$(pwd)/qdrant_storage:/qdrant/storage" qdrant/qdrant
@@ -73,7 +73,7 @@ python manage.py qcluster
 
 ## Installation
 
-Clone this repository and navigate to the frontend folder("finder-front"):
+Clone this repository and navigate to the frontend folder(`finder-front`):
 
 ```bash
 cd finder-front
